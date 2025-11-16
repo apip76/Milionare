@@ -378,4 +378,169 @@ function parseCSV(csvData) {
         if (!line) continue;
         const parts = line.split(','); 
         if (parts.length >= 4) {
-            const q = parts[0].trim().replace(/"/g,
+            const q = parts[0].trim().replace(/"/g, '');
+            const o = parts[1].trim().replace(/"/g, ''); 
+            const a = parts[2].trim().replace(/"/g, '');
+            const difficulty = parseInt(parts[3].trim().replace(/"/g, ''), 10);
+            if (q && o && a && difficulty) {
+                questions.push({ q, o, a, difficulty });
+            }
+        }
+    }
+    return questions;
+}
+function showQuestion() {
+    resetState();
+    const questionData = currentQuestions[currentQuestionIndex];
+    questionText.textContent = questionData.q;
+    let options = parseOptions(questionData.o);
+    options = shuffleArray(options);
+    optionButtons.forEach((btn, index) => {
+        btn.querySelector('p').textContent = options[index];
+        btn.dataset.answer = options[index]; 
+    });
+    updatePrizeLadder();
+    startTimer(60);
+}
+function parseOptions(optionsString) {
+    return optionsString.split('\\'); 
+}
+function processAnswer() {
+    confirmModal.style.display = 'none';
+    if (!selectedOption) return;
+    const selectedAnswer = selectedOption.dataset.answer; 
+    const correctAnswer = currentQuestions[currentQuestionIndex].a;
+    optionButtons.forEach(btn => btn.classList.add('disabled'));
+    if (selectedAnswer === correctAnswer) {
+        selectedOption.classList.add('correct');
+        correctAudio.play();
+        currentQuestionIndex++;
+        if (currentQuestionIndex === prizeLadderDisplay.length) {
+            currentScore = prizeLadderDisplay[currentQuestionIndex - 1];
+            currentScoreValue = prizeLadderValues[currentQuestionIndex - 1];
+            setTimeout(gameWin, 2000);
+        } else {
+            currentScore = prizeLadderDisplay[currentQuestionIndex - 1];
+            currentScoreValue = prizeLadderValues[currentQuestionIndex - 1];
+            setTimeout(showQuestion, 2000);
+        }
+    } else {
+        selectedOption.classList.add('wrong');
+        wrongAudio.play();
+        optionButtons.forEach(btn => { if (btn.dataset.answer === correctAnswer) btn.classList.add('correct'); });
+        currentScoreValue = 0;
+        if (currentQuestionIndex > 9) currentScoreValue = prizeLadderValues[9];
+        else if (currentQuestionIndex > 4) currentScoreValue = prizeLadderValues[4];
+        if (currentScoreValue === 0) currentScore = "Rp 0";
+        else currentScore = prizeLadderDisplay[prizeLadderValues.indexOf(currentScoreValue)];
+        setTimeout(gameOver, 2000);
+    }
+}
+function cancelAnswer() {
+    confirmModal.style.display = 'none';
+    optionButtons.forEach(btn => btn.classList.remove('selected'));
+    selectedOption = null;
+    startTimer(parseInt(timerDisplay.textContent));
+}
+function gameOver() {
+    bgAudio.pause();
+    bgAudio.currentTime = 0;
+    alert(`Permainan Selesai, ${playerName}!\nSkor Anda: ${currentScore}`);
+    saveScore(playerName, currentScoreValue);
+    gameScreen.classList.remove('active');
+    startScreen.classList.add('active');
+}
+function gameWin() {
+    bgAudio.pause();
+    alert(`SELAMAT, ${playerName}!\nAnda telah memenangkan ${currentScore}!`);
+    saveScore(playerName, currentScoreValue);
+    gameScreen.classList.remove('active');
+    startScreen.classList.add('active');
+}
+function startTimer(duration) {
+    timer = duration;
+    timerDisplay.textContent = timer;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timer--;
+        timerDisplay.textContent = timer;
+        if (timer <= 0) {
+            clearInterval(timerInterval);
+            wrongAudio.play();
+            currentScoreValue = 0;
+            if (currentQuestionIndex > 9) currentScoreValue = prizeLadderValues[9];
+            else if (currentQuestionIndex > 4) currentScoreValue = prizeLadderValues[4];
+            currentScore = (currentScoreValue === 0) ? "Rp 0" : prizeLadderDisplay[prizeLadderValues.indexOf(currentScoreValue)];
+            gameOver();
+        }
+    }, 1000);
+}
+function stopTimer() { clearInterval(timerInterval); }
+function resetState() {
+    optionButtons.forEach(btn => {
+        btn.classList.remove('selected', 'correct', 'wrong', 'disabled');
+    });
+    selectedOption = null;
+    confirmModal.style.display = 'none';
+}
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+function buildPrizeLadder() {
+    prizeLadderList.innerHTML = "";
+    const safePoints = [4, 9, 14];
+    prizeLadderDisplay.forEach((prize, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${index + 1}. ${prize}`;
+        li.dataset.level = index;
+        if (safePoints.includes(index)) li.classList.add('safe');
+        prizeLadderList.appendChild(li);
+    });
+}
+function updatePrizeLadder() {
+    const allLevels = prizeLadderList.querySelectorAll('li');
+    allLevels.forEach(li => {
+        if (parseInt(li.dataset.level) === currentQuestionIndex) li.classList.add('current');
+        else li.classList.remove('current');
+    });
+}
+async function saveScore(name, scoreValue) {
+    console.log(`Menyimpan skor ke Firebase: ${name} - ${scoreValue}`);
+    try {
+        const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
+        await addDoc(collection(db, leaderboardCollection), {
+            nama: name,
+            skor: scoreValue,
+            tanggal: serverTimestamp()
+        });
+        await showLeaderboard(leaderbandCollection);
+    } catch (error) {
+        console.error("Error Gagal menyimpan skor: ", error);
+        alert("Gagal menyimpan skor Anda ke leaderboard.");
+    }
+}
+async function showLeaderboard(leaderboardCollection) {
+    console.log(`Mengambil leaderboard dari ${leaderboardCollection}...`);
+    let leaderboardText = `--- TOP 10 LEADERBOARD (${customGameId ? 'Kuis Kustom' : 'Default'}) ---\n`;
+    try {
+        const q = query(collection(db, leaderboardCollection), orderBy("skor", "desc"), limit(10));
+        const snapshot = await getDocs(q);
+        let rank = 1;
+        if (snapshot.empty) leaderboardText += "\n(Belum ada data skor)";
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            let scoreString = new Intl.NumberFormat('id-ID', { 
+                style: 'currency', currency: 'IDR', minimumFractionDigits: 0 
+            }).format(data.skor);
+            leaderboardText += `${rank}. ${data.nama} - ${scoreString}\n`;
+            rank++;
+        });
+        alert(leaderboardText);
+    } catch (error) {
+        console.error("Error mengambil leaderboard: ", error);
+    }
+}
