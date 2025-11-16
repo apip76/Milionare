@@ -53,7 +53,7 @@ const faseSelect = document.getElementById('fase-select');
 const faseSelectContainer = document.getElementById('fase-select-container');
 const questionText = document.getElementById('question-text');
 const optionsContainer = document.getElementById('options-container');
-const optionButtons = document.querySelectorAll('.option');
+const optionButtons = document.querySelectorAll('.option'); // Ini tetap berfungsi!
 const timerDisplay = document.getElementById('timer');
 const prizeLadderList = document.getElementById('prize-ladder');
 const confirmModal = document.getElementById('confirm-modal');
@@ -134,7 +134,8 @@ startBtn.addEventListener('click', startGame);
 confirmYesBtn.addEventListener('click', processAnswer);
 confirmNoBtn.addEventListener('click', cancelAnswer);
 optionsContainer.addEventListener('click', (e) => {
-    const clickedOption = e.target.closest('.option');
+    // Logika ini tetap berfungsi sempurna untuk <div class="option">
+    const clickedOption = e.target.closest('.option'); 
     if (!clickedOption || clickedOption.classList.contains('disabled')) return;
     optionButtons.forEach(btn => btn.classList.remove('selected'));
     clickedOption.classList.add('selected');
@@ -257,7 +258,6 @@ async function startGame() {
         startBtn.textContent = "Mulai Bermain";
     }
 }
-
 function sortQuestionsByDifficulty(allQuestions) {
     const easyPool = [], mediumPool = [], hardPool = [];
     allQuestions.forEach(q => {
@@ -350,19 +350,16 @@ async function generateCustomGame() {
 }
 
 // --- Fungsi Helper (Utility) ---
-
 function parseCSV(csvData) {
     const questions = [];
     const lines = csvData.split(/\r?\n/);
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i];
         if (!line) continue;
-        // Asumsi sederhana: tidak ada koma di dalam pertanyaan/opsi/jawaban
-        // Format: q,o,a,difficulty
         const parts = line.split(','); 
         if (parts.length >= 4) {
             const q = parts[0].trim().replace(/"/g, '');
-            const o = parts[1].trim().replace(/"/g, ''); // INI ADALAH STRING: "OpsiA\OpsiB\OpsiC"
+            const o = parts[1].trim().replace(/"/g, ''); 
             const a = parts[2].trim().replace(/"/g, '');
             const difficulty = parseInt(parts[3].trim().replace(/"/g, ''), 10);
             if (q && o && a && difficulty) {
@@ -372,33 +369,29 @@ function parseCSV(csvData) {
     }
     return questions;
 }
-
 function showQuestion() {
     resetState();
     const questionData = currentQuestions[currentQuestionIndex];
     questionText.textContent = questionData.q;
-    let options = parseOptions(questionData.o); // Panggil fungsi di bawah
-    options = shuffleArray(options); // Acak urutan opsi
+    let options = parseOptions(questionData.o);
+    options = shuffleArray(options);
     optionButtons.forEach((btn, index) => {
+        // 'btn' sekarang adalah <div class="option">
         btn.querySelector('p').textContent = options[index];
-        btn.dataset.answer = options[index];
+        btn.dataset.answer = options[index]; // Set data-answer di div
     });
     updatePrizeLadder();
     startTimer(60);
 }
-
-// ***** PERUBAHAN UTAMA DI SINI (v7) *****
 function parseOptions(optionsString) {
     // Input: "Bandung\Jakarta\Surabaya\Bali"
     // Output: ["Bandung", "Jakarta", "Surabaya", "Bali"]
     return optionsString.split('\\'); 
 }
-
-// Sisa fungsi helper (tidak berubah)
 function processAnswer() {
     confirmModal.style.display = 'none';
     if (!selectedOption) return;
-    const selectedAnswer = selectedOption.dataset.answer;
+    const selectedAnswer = selectedOption.dataset.answer; // Mengambil data-answer dari div
     const correctAnswer = currentQuestions[currentQuestionIndex].a;
     optionButtons.forEach(btn => btn.classList.add('disabled'));
     if (selectedAnswer === correctAnswer) {
