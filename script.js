@@ -45,6 +45,7 @@ let timerInterval;
 let selectedOption = null;
 
 // --- Elemen DOM ---
+// Mengambil semua elemen dari HTML. Ini harus cocok 100%
 const startScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
 const startBtn = document.getElementById('start-game-btn');
@@ -98,14 +99,21 @@ const exportExcelBtn = document.getElementById('export-excel-btn');
 window.addEventListener('DOMContentLoaded', checkURLHash);
 async function checkURLHash() {
     const hash = window.location.hash.substring(1);
+    
+    // Ini adalah jawaban untuk permintaan Anda:
+    // Jika ada HASH (link kustom), kita sembunyikan semua elemen Host & Fase
     if (hash) {
         customGameId = hash;
-        customGameInfo.classList.remove('hidden');
+        customGameInfo.classList.remove('hidden'); // Tampilkan info kuis kustom
+        
+        // Sembunyikan semua yang tidak perlu
         faseSelectContainer.classList.add('hidden');
         hostControls.classList.add('hidden');
         document.getElementById('host-separator').classList.add('hidden');
         document.querySelector('.host-hr').classList.add('hidden');
         document.getElementById('view-scores-controls').classList.add('hidden');
+
+        // Memuat soal kustom
         try {
             const docRef = doc(db, "custom_games", customGameId);
             const docSnap = await getDoc(docRef);
@@ -161,7 +169,9 @@ phoneContactGrid.addEventListener('click', (e) => {
 });
 closePhoneModalBtn.addEventListener('click', () => {
     phoneModal.style.display = 'none';
-    startTimer(parseInt(timerDisplay.textContent));
+    if(gameScreen.classList.contains('active')) { // Hanya mulai timer jika di layar game
+        startTimer(parseInt(timerDisplay.textContent));
+    }
 });
 fiftyLifelineBtn.addEventListener('click', useFiftyFifty);
 viewScoresBtn.addEventListener('click', viewCustomScores);
@@ -170,7 +180,7 @@ closeScoreViewBtn.addEventListener('click', () => {
 });
 exportExcelBtn.addEventListener('click', exportScoresToExcel); 
 
-// ***** FIX #1: Menambahkan kembali listener untuk tombol poll *****
+// ***** PERBAIKAN BUG v10: Menambahkan kembali listener untuk tombol poll *****
 pollLifelineBtn.addEventListener('click', usePollLifeline); 
 
 // --- Fungsi Lihat Hasil Kuis (v6) ---
@@ -292,7 +302,7 @@ function sortQuestionsByDifficulty(allQuestions) {
 
 // --- Fungsi Bantuan (Lifelines) ---
 
-// ***** FIX #2: Menambahkan fungsi usePollLifeline() yang hilang *****
+// ***** PERBAIKAN BUG v10: Menambahkan fungsi usePollLifeline() yang hilang *****
 function usePollLifeline() {
     if (pollLifelineBtn.classList.contains('used')) return;
     stopTimer();
@@ -319,10 +329,8 @@ function usePollLifeline() {
     
     wrongOptions.forEach((opt, index) => {
         if (index === wrongOptions.length - 1) {
-            // Opsi salah terakhir mendapat sisa persentase
             pollResults[opt] = remainingPercent;
         } else {
-            // Bagi sisa persentase
             const percent = Math.floor(Math.random() * (remainingPercent / 2));
             pollResults[opt] = percent;
             remainingPercent -= percent;
@@ -332,14 +340,14 @@ function usePollLifeline() {
     // Format tampilan
     let responseHTML = "Hasil Polling Penonton:<br><br>";
     Object.keys(pollResults).sort().forEach(key => {
-        // Cari span (A:, B:, C:, D:) dari tombol opsi
         let optionPrefix = "";
         optionButtons.forEach(btn => {
             if(btn.dataset.answer === key){
+                // Ambil 'A:', 'B:', 'C:', atau 'D:'
                 optionPrefix = btn.querySelector('span').textContent;
             }
         });
-        responseHTML += `<strong>${optionPrefix}</strong> ${pollResults[key]}%<br>`;
+        responseHTML += `<div style="margin-bottom: 5px;"><strong>${optionPrefix}</strong> ${pollResults[key]}%</div>`;
     });
 
     // Tampilkan di modal Bantuan Telepon (kita pakai ulang)
@@ -370,7 +378,6 @@ function generatePhoneAnswer(contactType) {
     if (Math.random() < reliability) finalAnswer = correctAnswer;
     else finalAnswer = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
     
-    // Cari prefix (A:, B:, C:, D:)
     let optionPrefix = "";
     optionButtons.forEach(btn => {
         if(btn.dataset.answer === finalAnswer){
@@ -439,8 +446,10 @@ function parseCSV(csvData) {
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i];
         if (!line) continue;
+        // Membelah CSV dengan koma, tapi hati-hati dengan koma di dalam tanda kutip (meski kita hindari)
         const parts = line.split(','); 
         if (parts.length >= 4) {
+            // Bersihkan setiap bagian dari tanda kutip
             const q = parts[0].trim().replace(/"/g, '');
             const o = parts[1].trim().replace(/"/g, ''); 
             const a = parts[2].trim().replace(/"/g, '');
@@ -459,6 +468,9 @@ function showQuestion() {
     let options = parseOptions(questionData.o);
     options = shuffleArray(options);
     optionButtons.forEach((btn, index) => {
+        // Ambil prefix A:, B:, C:, D: dari HTML
+        const prefix = btn.querySelector('span').textContent; 
+        
         btn.querySelector('p').textContent = options[index];
         btn.dataset.answer = options[index]; 
     });
@@ -580,7 +592,7 @@ async function saveScore(name, scoreValue) {
             skor: scoreValue,
             tanggal: serverTimestamp()
         });
-        // ***** FIX #3: Memperbaiki typo 'leaderbandCollection' *****
+        // ***** PERBAIKAN BUG v10: Memperbaiki typo 'leaderbandCollection' *****
         await showLeaderboard(leaderboardCollection);
     } catch (error) {
         console.error("Error Gagal menyimpan skor: ", error);
