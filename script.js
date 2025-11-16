@@ -92,7 +92,7 @@ const scoreViewModal = document.getElementById('score-view-modal');
 const scoreViewTitle = document.getElementById('score-view-title');
 const scoreTableBody = document.getElementById('score-table-body');
 const closeScoreViewBtn = document.getElementById('close-score-view-btn');
-const exportExcelBtn = document.getElementById('export-excel-btn'); // <-- ELEMEN BARU
+const exportExcelBtn = document.getElementById('export-excel-btn'); 
 
 // --- Pengecekan URL (Dijalankan saat halaman dimuat) ---
 window.addEventListener('DOMContentLoaded', checkURLHash);
@@ -130,7 +130,7 @@ async function checkURLHash() {
     }
 }
 
-// --- Event Listeners ---
+// --- Event Listeners (Semua tombol) ---
 startBtn.addEventListener('click', startGame);
 confirmYesBtn.addEventListener('click', processAnswer);
 confirmNoBtn.addEventListener('click', cancelAnswer);
@@ -168,7 +168,10 @@ viewScoresBtn.addEventListener('click', viewCustomScores);
 closeScoreViewBtn.addEventListener('click', () => {
     scoreViewModal.style.display = 'none';
 });
-exportExcelBtn.addEventListener('click', exportScoresToExcel); // <-- EVENT LISTENER BARU
+exportExcelBtn.addEventListener('click', exportScoresToExcel); 
+
+// ***** FIX #1: Menambahkan kembali listener untuk tombol poll *****
+pollLifelineBtn.addEventListener('click', usePollLifeline); 
 
 // --- Fungsi Lihat Hasil Kuis (v6) ---
 async function viewCustomScores() {
@@ -187,7 +190,7 @@ async function viewCustomScores() {
         const snapshot = await getDocs(q);
         if (snapshot.empty) {
             scoreTableBody.innerHTML = '<tr><td colspan="4">Belum ada data skor untuk kuis ini.</td></tr>';
-            exportExcelBtn.disabled = true; // Nonaktifkan tombol export jika tidak ada data
+            exportExcelBtn.disabled = true; 
         } else {
             let rank = 1, html = "";
             snapshot.forEach((doc) => {
@@ -200,7 +203,7 @@ async function viewCustomScores() {
                 rank++;
             });
             scoreTableBody.innerHTML = html;
-            exportExcelBtn.disabled = false; // Aktifkan tombol export
+            exportExcelBtn.disabled = false; 
         }
         scoreViewModal.style.display = 'flex';
     } catch (error) {
@@ -212,20 +215,12 @@ async function viewCustomScores() {
     }
 }
 
-// --- FUNGSI BARU (v8) UNTUK EXPORT EXCEL ---
+// --- FUNGSI (v8) UNTUK EXPORT EXCEL ---
 function exportScoresToExcel() {
-    // Ambil tabel dari modal
     const table = document.getElementById('score-table');
-    
-    // Gunakan library SheetJS (XLSX) untuk mengkonversi tabel HTML ke "workbook"
-    // 'XLSX' adalah objek global dari script CDN yang kita tambahkan
     const wb = XLSX.utils.table_to_book(table, {sheet: "Leaderboard"});
-
-    // Buat nama file yang dinamis berdasarkan ID Kuis
     const quizId = viewQuizIdInput.value.split('#').pop().trim() || "leaderboard";
     const filename = `Skor_${quizId}.xlsx`;
-
-    // Minta SheetJS untuk membuat & men-download file
     XLSX.writeFile(wb, filename);
 }
 
@@ -296,6 +291,65 @@ function sortQuestionsByDifficulty(allQuestions) {
 }
 
 // --- Fungsi Bantuan (Lifelines) ---
+
+// ***** FIX #2: Menambahkan fungsi usePollLifeline() yang hilang *****
+function usePollLifeline() {
+    if (pollLifelineBtn.classList.contains('used')) return;
+    stopTimer();
+    pollLifelineBtn.classList.add('used');
+
+    const correctAnswer = currentQuestions[currentQuestionIndex].a;
+    const options = [];
+    optionButtons.forEach(btn => {
+        if (!btn.classList.contains('disabled')) {
+            options.push(btn.dataset.answer);
+        }
+    });
+
+    // Buat hasil polling palsu
+    let pollResults = {};
+    let remainingPercent = 100;
+    
+    // Beri jawaban benar persentase tinggi (misal 50% - 75%)
+    const correctPercent = Math.floor(Math.random() * 26) + 50; // 50-75
+    pollResults[correctAnswer] = correctPercent;
+    remainingPercent -= correctPercent;
+
+    const wrongOptions = options.filter(opt => opt !== correctAnswer);
+    
+    wrongOptions.forEach((opt, index) => {
+        if (index === wrongOptions.length - 1) {
+            // Opsi salah terakhir mendapat sisa persentase
+            pollResults[opt] = remainingPercent;
+        } else {
+            // Bagi sisa persentase
+            const percent = Math.floor(Math.random() * (remainingPercent / 2));
+            pollResults[opt] = percent;
+            remainingPercent -= percent;
+        }
+    });
+
+    // Format tampilan
+    let responseHTML = "Hasil Polling Penonton:<br><br>";
+    Object.keys(pollResults).sort().forEach(key => {
+        // Cari span (A:, B:, C:, D:) dari tombol opsi
+        let optionPrefix = "";
+        optionButtons.forEach(btn => {
+            if(btn.dataset.answer === key){
+                optionPrefix = btn.querySelector('span').textContent;
+            }
+        });
+        responseHTML += `<strong>${optionPrefix}</strong> ${pollResults[key]}%<br>`;
+    });
+
+    // Tampilkan di modal Bantuan Telepon (kita pakai ulang)
+    phoneTitle.textContent = "Hasil Polling";
+    phoneContactGrid.classList.add('hidden');
+    phoneResponseArea.classList.remove('hidden');
+    phoneResponseText.innerHTML = responseHTML;
+    phoneModal.style.display = 'flex';
+}
+
 function usePhoneLifeline() {
     if (phoneLifelineBtn.classList.contains('used')) return;
     stopTimer();
@@ -315,10 +369,19 @@ function generatePhoneAnswer(contactType) {
     if (contactType === 'expert') { reliability = 0.9; name = "Ahli"; }
     if (Math.random() < reliability) finalAnswer = correctAnswer;
     else finalAnswer = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+    
+    // Cari prefix (A:, B:, C:, D:)
+    let optionPrefix = "";
+    optionButtons.forEach(btn => {
+        if(btn.dataset.answer === finalAnswer){
+            optionPrefix = btn.querySelector('span').textContent;
+        }
+    });
+
     phoneTitle.textContent = `Panggilan ke ${name}...`;
     phoneContactGrid.classList.add('hidden');
     phoneResponseArea.classList.remove('hidden');
-    phoneResponseText.innerHTML = `Halo? Hmm, pertanyaan yang sulit... <br>Saya tidak 100% yakin, tapi saya rasa jawabannya adalah <strong>${finalAnswer}</strong>.`;
+    phoneResponseText.innerHTML = `Halo? Hmm, pertanyaan yang sulit... <br>Saya tidak 100% yakin, tapi saya rasa jawabannya adalah <strong>${optionPrefix} ${finalAnswer}</strong>.`;
 }
 function useFiftyFifty() {
     if (fiftyLifelineBtn.classList.contains('used')) return;
@@ -517,7 +580,8 @@ async function saveScore(name, scoreValue) {
             skor: scoreValue,
             tanggal: serverTimestamp()
         });
-        await showLeaderboard(leaderbandCollection);
+        // ***** FIX #3: Memperbaiki typo 'leaderbandCollection' *****
+        await showLeaderboard(leaderboardCollection);
     } catch (error) {
         console.error("Error Gagal menyimpan skor: ", error);
         alert("Gagal menyimpan skor Anda ke leaderboard.");
