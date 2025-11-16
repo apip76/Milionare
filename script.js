@@ -53,7 +53,7 @@ const faseSelect = document.getElementById('fase-select');
 const faseSelectContainer = document.getElementById('fase-select-container');
 const questionText = document.getElementById('question-text');
 const optionsContainer = document.getElementById('options-container');
-const optionButtons = document.querySelectorAll('.option'); // Ini tetap berfungsi!
+const optionButtons = document.querySelectorAll('.option'); 
 const timerDisplay = document.getElementById('timer');
 const prizeLadderList = document.getElementById('prize-ladder');
 const confirmModal = document.getElementById('confirm-modal');
@@ -134,7 +134,6 @@ startBtn.addEventListener('click', startGame);
 confirmYesBtn.addEventListener('click', processAnswer);
 confirmNoBtn.addEventListener('click', cancelAnswer);
 optionsContainer.addEventListener('click', (e) => {
-    // Logika ini tetap berfungsi sempurna untuk <div class="option">
     const clickedOption = e.target.closest('.option'); 
     if (!clickedOption || clickedOption.classList.contains('disabled')) return;
     optionButtons.forEach(btn => btn.classList.remove('selected'));
@@ -376,22 +375,19 @@ function showQuestion() {
     let options = parseOptions(questionData.o);
     options = shuffleArray(options);
     optionButtons.forEach((btn, index) => {
-        // 'btn' sekarang adalah <div class="option">
         btn.querySelector('p').textContent = options[index];
-        btn.dataset.answer = options[index]; // Set data-answer di div
+        btn.dataset.answer = options[index]; 
     });
     updatePrizeLadder();
     startTimer(60);
 }
 function parseOptions(optionsString) {
-    // Input: "Bandung\Jakarta\Surabaya\Bali"
-    // Output: ["Bandung", "Jakarta", "Surabaya", "Bali"]
     return optionsString.split('\\'); 
 }
 function processAnswer() {
     confirmModal.style.display = 'none';
     if (!selectedOption) return;
-    const selectedAnswer = selectedOption.dataset.answer; // Mengambil data-answer dari div
+    const selectedAnswer = selectedOption.dataset.answer; 
     const correctAnswer = currentQuestions[currentQuestionIndex].a;
     optionButtons.forEach(btn => btn.classList.add('disabled'));
     if (selectedAnswer === correctAnswer) {
