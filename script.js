@@ -1,12 +1,8 @@
-// --- Impor Firebase v9+ (ES Module) ---
+// --- Impor Firebase ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { 
-    getFirestore, collection, addDoc, getDocs, 
-    query, where, orderBy, limit, serverTimestamp, 
-    doc, getDoc 
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-// --- Konfigurasi Firebase Anda ---
+// --- Konfigurasi Firebase (Ganti dengan milik Anda jika beda) ---
 const firebaseConfig = {
     apiKey: "AIzaSyA88-FpW6V0okBYUE9CqSUt5_YjEzbnEyY",
     authDomain: "milionare-3bf47.firebaseapp.com",
@@ -16,708 +12,481 @@ const firebaseConfig = {
     appId: "1:259209976100:web:df20a25b08a8fb5ded3bb1"
 };
 
-// Inisialisasi Firebase dan Firestore
+// Init Firebase dengan Try-Catch agar tidak crash jika error
 let db;
 try {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
-    console.log("Firebase v13 terhubung.");
 } catch (e) {
-    console.error("Gagal inisialisasi Firebase:", e);
-    alert("Gagal terhubung ke server kuis. Coba refresh halaman.");
+    console.error("Firebase Init Error:", e);
+    alert("Gagal koneksi database. Cek konsol.");
 }
 
-// --- Tangga Hadiah ---
-const prizeLadderDisplay = [
-    "Rp 50.000", "Rp 125.000", "Rp 250.000", "Rp 500.000", "Rp 1.000.000",
-    "Rp 2.000.000", "Rp 4.000.000", "Rp 8.000.000", "Rp 16.000.000", "Rp 32.000.000",
-    "Rp 64.000.000", "Rp 125.000.000", "Rp 250.000.000", "Rp 500.000.000", "Rp 1 MILYAR"
-];
-const prizeLadderValues = [
-    50000, 125000, 250000, 500000, 1000000,
-    2000000, 4000000, 8000000, 16000000, 32000000,
-    64000000, 125000000, 250000000, 500000000, 1000000000
-];
+// --- Data & Variabel ---
+const prizeLadderDisplay = ["Rp 50rb", "Rp 125rb", "Rp 250rb", "Rp 500rb", "Rp 1 Jt", "Rp 2 Jt", "Rp 4 Jt", "Rp 8 Jt", "Rp 16 Jt", "Rp 32 Jt", "Rp 64 Jt", "Rp 125 Jt", "Rp 250 Jt", "Rp 500 Jt", "Rp 1 MILYAR"];
+const prizeLadderValues = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 
-// --- Variabel Global Game ---
 let playerName = "";
 let currentQuestions = [];
-let customGameQuestions = []; 
-let customGameId = null; 
 let currentQuestionIndex = 0;
-let currentScore = "Rp 0";
-let currentScoreValue = 0;
-let timer;
-let timerInterval;
-let dialInterval; 
+let currentScore = 0;
+let timerInterval, dialInterval;
+let customGameId = null;
 let selectedOption = null;
-let optionButtons = []; // Diisi saat showQuestion()
+let optionButtons = []; // Nodelist dinamis
 
-// --- Elemen DOM ---
-const startScreen = document.getElementById('start-screen');
-const gameScreen = document.getElementById('game-screen');
-const startBtn = document.getElementById('start-game-btn');
-const nameInput = document.getElementById('player-name-input');
-const faseSelect = document.getElementById('fase-select');
-const faseSelectContainer = document.getElementById('fase-select-container');
-const questionText = document.getElementById('question-text');
-const optionsContainer = document.getElementById('options-container');
-const timerDisplay = document.getElementById('timer');
-const prizeLadderList = document.getElementById('prize-ladder');
-const confirmModal = document.getElementById('confirm-modal');
-const confirmYesBtn = document.getElementById('confirm-yes');
-const confirmNoBtn = document.getElementById('confirm-no');
-const openingAudio = document.getElementById('opening-audio');
-const bgAudio = document.getElementById('bg-audio');
-const correctAudio = document.getElementById('correct-audio');
-const wrongAudio = document.getElementById('wrong-audio');
-const customGameInfo = document.getElementById('custom-game-info');
-const customGameStatus = document.getElementById('custom-game-status');
-const hostControls = document.getElementById('host-controls');
-const toggleHostBtn = document.getElementById('toggle-host-btn');
-const hostPanel = document.getElementById('host-panel');
-const gSheetInput = document.getElementById('google-sheet-input');
-const generateLinkBtn = document.getElementById('generate-link-btn');
-const howToModal = document.getElementById('how-to-modal');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const howToCsvLink = document.getElementById('how-to-csv-link');
-const shareLinkModal = document.getElementById('share-link-modal');
-const shareableLinkInput = document.getElementById('shareable-link-input');
-const copyLinkBtn = document.getElementById('copy-link-btn');
-const closeShareModalBtn = document.getElementById('close-share-modal-btn');
-const phoneLifelineBtn = document.getElementById('lifeline-phone');
-const phoneModal = document.getElementById('phone-modal');
-const phoneTitle = document.getElementById('phone-title');
-const phoneDialingScreen = document.getElementById('phone-dialing-screen');
-const dialingStatus = document.getElementById('dialing-status');
-const dialingTimerDisplay = document.getElementById('dialing-timer');
-const phoneContactGrid = document.getElementById('phone-contact-grid');
-const phoneResponseArea = document.getElementById('phone-response-area');
-const phoneResponseText = document.getElementById('phone-response-text');
-const closePhoneModalBtn = document.getElementById('close-phone-modal-btn');
-const pollLifelineBtn = document.getElementById('lifeline-poll');
-const fiftyLifelineBtn = document.getElementById('lifeline-5050');
-const viewScoresBtn = document.getElementById('view-scores-btn');
-const viewQuizIdInput = document.getElementById('view-quiz-id-input');
-const scoreViewModal = document.getElementById('score-view-modal');
-const scoreViewTitle = document.getElementById('score-view-title');
-const scoreTableBody = document.getElementById('score-table-body');
-const closeScoreViewBtn = document.getElementById('close-score-view-btn');
-const exportExcelBtn = document.getElementById('export-excel-btn'); 
-const pollModal = document.getElementById('poll-modal');
-const pollChartContainer = document.getElementById('poll-chart-container');
-const closePollModalBtn = document.getElementById('close-poll-modal-btn');
+// --- Helper DOM Selector Aman ---
+const getEl = (id) => document.getElementById(id);
 
-// --- Pengecekan URL (Dijalankan saat halaman dimuat) ---
-try {
-    window.addEventListener('DOMContentLoaded', checkURLHash);
-} catch(e) { console.error("Gagal menambah listener DOMContentLoaded", e); }
+// --- Init saat Load ---
+window.addEventListener('DOMContentLoaded', () => {
+    checkURLHash();
+    setupEventListeners();
+});
 
+// --- Logika Hapus Panel Host jika Link Kustom ---
 async function checkURLHash() {
-    try {
-        const hash = window.location.hash.substring(1);
-        if (hash) {
-            customGameId = hash;
-            customGameInfo.classList.remove('hidden'); 
-            faseSelectContainer.classList.add('hidden');
-            hostControls.classList.add('hidden');
-            document.getElementById('host-separator').classList.add('hidden');
-            document.querySelector('.host-hr').classList.add('hidden');
-            document.getElementById('view-scores-controls').classList.add('hidden');
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+        customGameId = hash;
+        // Sembunyikan elemen Host & Fase
+        if(getEl('fase-select-container')) getEl('fase-select-container').classList.add('hidden');
+        if(getEl('host-section-container')) getEl('host-section-container').classList.add('hidden'); // Container Host
+        if(getEl('score-section-container')) getEl('score-section-container').classList.add('hidden'); // Container Skor
+        if(getEl('custom-game-info')) getEl('custom-game-info').classList.remove('hidden');
+
+        // Load soal dari Firebase
+        try {
             const docRef = doc(db, "custom_games", customGameId);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
-                const allQuestions = docSnap.data().questions;
-                const sortedQuestions = sortQuestionsByDifficulty(allQuestions);
-                if (sortedQuestions.length < 15) {
-                    customGameStatus.textContent = `Error: Kuis kustom tidak lengkap. Butuh min. 5 soal per level.`;
-                    startBtn.disabled = true; return;
+                const allQ = docSnap.data().questions;
+                currentQuestions = sortQuestionsByDifficulty(allQuestions);
+                if (currentQuestions.length < 15) {
+                    alert("Soal kustom rusak/kurang. Minimal 15 soal.");
+                    getEl('start-game-btn').disabled = true;
+                } else {
+                    getEl('custom-game-status').textContent = "Soal Kustom Siap!";
                 }
-                customGameQuestions = sortedQuestions;
-                customGameStatus.textContent = `Kuis Kustom Siap! (${customGameQuestions.length} soal ditemukan)`;
             } else {
-                customGameStatus.textContent = "Error: Kuis kustom dengan ID ini tidak ditemukan!";
-                startBtn.disabled = true;
+                alert("Kuis tidak ditemukan!");
             }
+        } catch (e) {
+            console.error(e);
+            alert("Gagal memuat kuis kustom.");
         }
-    } catch (error) {
-        console.error("Error mengambil kuis kustom:", error);
-        customGameStatus.textContent = "Error: Gagal memuat kuis.";
-        if (startBtn) startBtn.disabled = true;
     }
 }
 
-// --- Event Listeners (Dibungkus Try-Catch) ---
-try {
-    startBtn.addEventListener('click', startGame);
-    confirmYesBtn.addEventListener('click', processAnswer);
-    confirmNoBtn.addEventListener('click', cancelAnswer);
-    optionsContainer.addEventListener('click', (e) => {
-        const clickedOption = e.target.closest('.option'); 
-        if (!clickedOption || clickedOption.classList.contains('disabled')) return;
-        optionButtons.forEach(btn => btn.classList.remove('selected'));
-        clickedOption.classList.add('selected');
-        selectedOption = clickedOption;
-        stopTimer();
-        confirmModal.style.display = 'flex';
+function setupEventListeners() {
+    // Tombol Utama
+    getEl('start-game-btn')?.addEventListener('click', startGame);
+    getEl('confirm-yes')?.addEventListener('click', processAnswer);
+    getEl('confirm-no')?.addEventListener('click', () => getEl('confirm-modal').style.display = 'none');
+    
+    // Host Panel
+    getEl('toggle-host-btn')?.addEventListener('click', () => getEl('host-panel').classList.toggle('hidden'));
+    getEl('generate-link-btn')?.addEventListener('click', generateCustomGame);
+    getEl('view-scores-btn')?.addEventListener('click', viewCustomScores);
+    
+    // Lifelines
+    getEl('lifeline-phone')?.addEventListener('click', usePhoneLifeline);
+    getEl('lifeline-poll')?.addEventListener('click', usePollLifeline);
+    getEl('lifeline-5050')?.addEventListener('click', useFiftyFifty);
+    
+    // Modals Close
+    getEl('close-phone-modal-btn')?.addEventListener('click', () => {
+        getEl('phone-modal').style.display = 'none';
+        clearInterval(dialInterval);
+        startTimer();
     });
-    toggleHostBtn.addEventListener('click', () => hostPanel.classList.toggle('hidden'));
-    howToCsvLink.addEventListener('click', (e) => { e.preventDefault(); howToModal.style.display = 'flex'; });
-    closeModalBtn.addEventListener('click', () => howToModal.style.display = 'none');
-    generateLinkBtn.addEventListener('click', generateCustomGame);
-    closeShareModalBtn.addEventListener('click', () => shareLinkModal.style.display = 'none');
-    copyLinkBtn.addEventListener('click', () => {
-        shareableLinkInput.select();
+    getEl('close-poll-modal-btn')?.addEventListener('click', () => {
+        getEl('poll-modal').style.display = 'none';
+        startTimer();
+    });
+    getEl('close-score-view-btn')?.addEventListener('click', () => getEl('score-view-modal').style.display = 'none');
+    getEl('close-share-modal-btn')?.addEventListener('click', () => getEl('share-link-modal').style.display = 'none');
+    getEl('close-modal-btn')?.addEventListener('click', () => getEl('how-to-modal').style.display = 'none');
+    getEl('how-to-csv-link')?.addEventListener('click', () => getEl('how-to-modal').style.display = 'flex');
+    getEl('copy-link-btn')?.addEventListener('click', () => {
+        getEl('shareable-link-input').select();
         document.execCommand('copy');
-        copyLinkBtn.textContent = 'Disalin!';
-        setTimeout(() => { copyLinkBtn.textContent = 'Salin Link'; }, 2000);
     });
-    phoneLifelineBtn.addEventListener('click', usePhoneLifeline);
-    phoneContactGrid.addEventListener('click', (e) => {
-        const contact = e.target.closest('.phone-contact');
-        if (contact) generatePhoneAnswer(contact.dataset.contact);
-    });
-    closePhoneModalBtn.addEventListener('click', () => {
-        phoneModal.style.display = 'none';
-        clearInterval(dialInterval); 
-        if(gameScreen.classList.contains('active')) {
-            startTimer(parseInt(timerDisplay.textContent));
+    getEl('export-excel-btn')?.addEventListener('click', exportScoresToExcel);
+    
+    // Opsi Jawaban (Delegation)
+    getEl('options-container')?.addEventListener('click', (e) => {
+        const opt = e.target.closest('.option');
+        if(opt && !opt.classList.contains('disabled')) {
+            document.querySelectorAll('.option').forEach(b => b.classList.remove('selected'));
+            opt.classList.add('selected');
+            selectedOption = opt;
+            stopTimer();
+            getEl('confirm-modal').style.display = 'flex';
         }
     });
-    fiftyLifelineBtn.addEventListener('click', useFiftyFifty);
-    viewScoresBtn.addEventListener('click', viewCustomScores);
-    closeScoreViewBtn.addEventListener('click', () => {
-        scoreViewModal.style.display = 'none';
+    
+    // Phone Contacts
+    document.querySelectorAll('.phone-contact').forEach(c => {
+        c.addEventListener('click', () => generatePhoneAnswer(c.dataset.contact));
     });
-    exportExcelBtn.addEventListener('click', exportScoresToExcel); 
-    pollLifelineBtn.addEventListener('click', usePollLifeline); 
-    closePollModalBtn.addEventListener('click', () => {
-        pollModal.style.display = 'none';
-        if(gameScreen.classList.contains('active')) {
-            startTimer(parseInt(timerDisplay.textContent));
-        }
-    });
-} catch (e) {
-    console.error("Error saat menambahkan event listener:", e);
-    alert("Terjadi error saat memuat script. Pastikan file index.html dan script.js Anda sinkron.");
 }
 
-// --- Fungsi Lihat Hasil Kuis (v6) ---
-async function viewCustomScores() {
-    const quizId = viewQuizIdInput.value.split('#').pop().trim();
-    if (!quizId) {
-        alert("Harap masukkan ID Kuis Kustom Anda.");
-        return;
-    }
-    viewScoresBtn.disabled = true;
-    viewScoresBtn.textContent = "Mencari...";
-    scoreTableBody.innerHTML = "";
-    scoreViewTitle.textContent = `Leaderboard untuk Kuis ID: ${quizId}`;
-    try {
-        const leaderboardCollection = `leaderboard_${quizId}`;
-        const q = query(collection(db, leaderboardCollection), orderBy("skor", "desc"), limit(100));
-        const snapshot = await getDocs(q);
-        if (snapshot.empty) {
-            scoreTableBody.innerHTML = '<tr><td colspan="4">Belum ada data skor untuk kuis ini.</td></tr>';
-            exportExcelBtn.disabled = true; 
-        } else {
-            let rank = 1, html = "";
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const scoreString = new Intl.NumberFormat('id-ID', { 
-                    style: 'currency', currency: 'IDR', minimumFractionDigits: 0 
-                }).format(data.skor);
-                const date = data.tanggal ? data.tanggal.toDate().toLocaleString('id-ID') : 'N/A';
-                html += `<tr><td>${rank}</td><td>${data.nama}</td><td>${scoreString}</td><td>${date}</td></tr>`;
-                rank++;
-            });
-            scoreTableBody.innerHTML = html;
-            exportExcelBtn.disabled = false; 
-        }
-        scoreViewModal.style.display = 'flex';
-    } catch (error) {
-        console.error("Gagal mengambil skor:", error);
-        alert("Gagal mengambil data skor. Pastikan ID Kuis benar.");
-    } finally {
-        viewScoresBtn.disabled = false;
-        viewScoresBtn.textContent = "Tampilkan Skor";
-    }
-}
+// --- Game Functions ---
 
-// --- FUNGSI (v8) UNTUK EXPORT EXCEL ---
-function exportScoresToExcel() {
-    try {
-        const table = document.getElementById('score-table');
-        const wb = XLSX.utils.table_to_book(table, {sheet: "Leaderboard"});
-        const quizId = viewQuizIdInput.value.split('#').pop().trim() || "leaderboard";
-        const filename = `Skor_${quizId}.xlsx`;
-        XLSX.writeFile(wb, filename);
-    } catch(e) {
-        console.error("Gagal export excel:", e);
-        alert("Gagal export ke Excel. Pastikan library SheetJS termuat.");
-    }
-}
-
-// --- Fungsi Game ---
 async function startGame() {
-    playerName = nameInput.value;
-    if (playerName.trim() === "") {
-        alert("Harap masukkan nama Anda!");
-        return;
+    playerName = getEl('player-name-input').value.trim();
+    if (!playerName) return alert("Nama wajib diisi!");
+    
+    getEl('start-game-btn').disabled = true;
+    getEl('start-game-btn').textContent = "Memuat...";
+    
+    // Jika bukan custom game, load CSV lokal
+    if (!customGameId) {
+        const fase = getEl('fase-select').value;
+        try {
+            const res = await fetch(`Fase${fase}.csv`);
+            if (!res.ok) throw new Error("Gagal load CSV lokal");
+            const txt = await res.text();
+            const allQ = parseCSV(txt);
+            currentQuestions = sortQuestionsByDifficulty(allQ);
+            if (currentQuestions.length < 15) throw new Error("Soal CSV kurang dari 15");
+        } catch (e) {
+            alert("Error load soal: " + e.message);
+            getEl('start-game-btn').disabled = false;
+            getEl('start-game-btn').textContent = "Mulai Bermain";
+            return;
+        }
     }
-    currentQuestions = [];
+    
+    // Reset UI
     currentQuestionIndex = 0;
-    currentScore = "Rp 0";
-    currentScoreValue = 0;
-    document.querySelectorAll('.lifeline').forEach(btn => btn.classList.remove('used'));
-    startBtn.disabled = true;
-    startBtn.textContent = "Memuat...";
-    try {
-        let allQuestions = [];
-        if (customGameId && customGameQuestions.length > 0) {
-            console.log("Memuat kuis kustom...");
-            currentQuestions = customGameQuestions;
-        } else if (!customGameId) {
-            console.log("Memuat kuis default (Lokal CSV)...");
-            const selectedFase = faseSelect.value;
-            const fileName = `Fase${selectedFase}.csv`;
-            const response = await fetch(fileName);
-            if (!response.ok) throw new Error(`File soal ${fileName} tidak ditemukan. Pastikan file ada di folder yang sama dengan index.html dan Anda menggunakan Live Server.`);
-            const csvData = await response.text();
-            allQuestions = parseCSV(csvData);
-            const sortedQuestions = sortQuestionsByDifficulty(allQuestions);
-            if (sortedQuestions.length < 15) {
-                throw new Error(`Soal di ${fileName} tidak lengkap. Butuh minimal 5 soal untuk level Mudah, 5 Sedang, dan 5 Sulit.`);
-            }
-            currentQuestions = sortedQuestions;
-        } else {
-             throw new Error("Soal kustom tidak dapat dimuat.");
-        }
-        startScreen.classList.remove('active');
-        gameScreen.classList.add('active');
-        openingAudio.play();
-        openingAudio.onended = () => { bgAudio.play(); };
-        buildPrizeLadder();
-        showQuestion();
-    } catch (error) {
-        console.error("Gagal memulai game: ", error);
-        alert(`Error: ${error.message}`);
-    } finally {
-        startBtn.disabled = false;
-        startBtn.textContent = "Mulai Bermain";
-    }
-}
-function sortQuestionsByDifficulty(allQuestions) {
-    const easyPool = [], mediumPool = [], hardPool = [];
-    allQuestions.forEach(q => {
-        if (q.difficulty === 1) easyPool.push(q);
-        else if (q.difficulty === 2) mediumPool.push(q);
-        else if (q.difficulty === 3) hardPool.push(q);
-    });
-    shuffleArray(easyPool);
-    shuffleArray(mediumPool);
-    shuffleArray(hardPool);
-    if (easyPool.length < 5 || mediumPool.length < 5 || hardPool.length < 5) {
-        console.error(`Soal tidak cukup! Mudah: ${easyPool.length}, Sedang: ${mediumPool.length}, Sulit: ${hardPool.length}. (Butuh 5 dari masing-masing)`);
-        return [];
-    }
-    return [ ...easyPool.slice(0, 5), ...mediumPool.slice(0, 5), ...hardPool.slice(0, 5) ];
+    currentScore = 0;
+    document.querySelectorAll('.lifeline').forEach(l => l.classList.remove('used'));
+    
+    getEl('start-screen').classList.remove('active');
+    getEl('game-screen').classList.add('active');
+    
+    getEl('opening-audio').play();
+    setTimeout(() => getEl('bg-audio').play(), 3000);
+    
+    buildLadder();
+    showQuestion();
 }
 
-// --- Fungsi Bantuan (Lifelines) ---
-
-// ***** v13: Perbaikan Bug Diagram Statistik *****
-function usePollLifeline() {
-    if (pollLifelineBtn.classList.contains('used')) return;
-    stopTimer();
-    pollLifelineBtn.classList.add('used');
-
-    const correctAnswer = currentQuestions[currentQuestionIndex].a;
-    const options = [];
-    optionButtons.forEach(btn => {
-        if (!btn.classList.contains('disabled')) {
-            options.push(btn.dataset.answer);
-        }
-    });
-    let pollResults = {};
-    let remainingPercent = 100;
-    const correctPercent = Math.floor(Math.random() * 26) + 50; // 50-75
-    pollResults[correctAnswer] = correctPercent;
-    remainingPercent -= correctPercent;
-    const wrongOptions = options.filter(opt => opt !== correctAnswer);
-    wrongOptions.forEach((opt, index) => {
-        if (index === wrongOptions.length - 1) {
-            pollResults[opt] = remainingPercent;
-        } else {
-            const percent = Math.floor(Math.random() * (remainingPercent / 2));
-            pollResults[opt] = percent;
-            remainingPercent -= percent;
-        }
-    });
-    pollChartContainer.innerHTML = ""; 
-    const barElements = [];
-    const sortedOptions = [];
+function showQuestion() {
+    const q = currentQuestions[currentQuestionIndex];
+    getEl('question-text').textContent = q.q;
     
-    optionButtons.forEach(btn => {
-        if (!btn.classList.contains('disabled')) {
-            const answer = btn.dataset.answer;
-            const prefix = btn.querySelector('span').textContent.replace(':', '');
-            sortedOptions.push({
-                answer: answer,
-                prefix: prefix,
-                percent: pollResults[answer] || 0
-            });
-        }
-    });
-
-    sortedOptions.forEach(opt => {
-        const barWrapper = document.createElement('div');
-        barWrapper.className = 'poll-bar-wrapper';
-        const bar = document.createElement('div');
-        bar.className = 'poll-bar';
-        bar.style.height = '0%'; // Mulai dari 0
-        
-        const label = document.createElement('div');
-        label.className = 'poll-label';
-        label.textContent = opt.prefix;
-        
-        barWrapper.appendChild(bar);
-        barWrapper.appendChild(label);
-        pollChartContainer.appendChild(barWrapper);
-        
-        barElements.push(bar); // Simpan bar untuk dianimasikan
+    const container = getEl('options-container');
+    container.innerHTML = "";
+    
+    let opts = q.o.split('\\'); // Split by backslash
+    opts = opts.sort(() => Math.random() - 0.5); // Shuffle options
+    
+    opts.forEach((txt, idx) => {
+        const char = String.fromCharCode(65 + idx); // A, B, C...
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.dataset.answer = txt;
+        div.innerHTML = `<span>${char}:</span> <p>${txt}</p>`;
+        container.appendChild(div);
     });
     
-    pollModal.style.display = 'flex';
+    updateLadder();
+    startTimer();
+}
 
-    // PERBAIKAN: Terapkan tinggi *setelah* modal ditampilkan
-    setTimeout(() => {
-        barElements.forEach((bar, index) => {
-            bar.style.height = `${sortedOptions[index].percent}%`;
+function processAnswer() {
+    getEl('confirm-modal').style.display = 'none';
+    if(!selectedOption) return;
+    
+    const ans = selectedOption.dataset.answer;
+    const correct = currentQuestions[currentQuestionIndex].a;
+    
+    document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+    
+    if(ans === correct) {
+        selectedOption.classList.add('correct');
+        getEl('correct-audio').play();
+        currentScore = prizeLadderValues[currentQuestionIndex];
+        currentQuestionIndex++;
+        
+        if(currentQuestionIndex >= 15) winGame();
+        else setTimeout(showQuestion, 2000);
+    } else {
+        selectedOption.classList.add('wrong');
+        // Highlight correct answer
+        document.querySelectorAll('.option').forEach(o => {
+            if(o.dataset.answer === correct) o.classList.add('correct');
         });
-    }, 100); // 100ms untuk memastikan modal di-render
+        getEl('wrong-audio').play();
+        setTimeout(loseGame, 2000);
+    }
 }
 
-// ***** v13: Perbaikan Alur Logika Telepon *****
-function usePhoneLifeline() {
-    if (phoneLifelineBtn.classList.contains('used')) return;
+function winGame() {
+    alert(`SELAMAT! Anda menang ${prizeLadderDisplay[14]}`);
+    saveScore(playerName, currentScore);
+    resetGame();
+}
+
+function loseGame() {
+    // Hitung safety net
+    let finalScore = 0;
+    if(currentQuestionIndex >= 10) finalScore = prizeLadderValues[9];
+    else if(currentQuestionIndex >= 5) finalScore = prizeLadderValues[4];
+    
+    alert(`Game Over! Anda membawa pulang: Rp ${finalScore.toLocaleString()}`);
+    saveScore(playerName, finalScore);
+    resetGame();
+}
+
+function resetGame() {
+    getEl('bg-audio').pause();
+    getEl('bg-audio').currentTime = 0;
+    getEl('game-screen').classList.remove('active');
+    getEl('start-screen').classList.add('active');
+    getEl('start-game-btn').disabled = false;
+    getEl('start-game-btn').textContent = "Mulai Bermain";
+}
+
+// --- Lifelines ---
+
+function usePollLifeline() {
+    const btn = getEl('lifeline-poll');
+    if(btn.classList.contains('used')) return;
+    btn.classList.add('used');
     stopTimer();
-    phoneLifelineBtn.classList.add('used');
     
-    // Reset modal ke layar PILIH KONTAK
-    phoneTitle.textContent = "Pilih Bantuan";
-    phoneDialingScreen.classList.add('hidden');
-    phoneResponseArea.classList.add('hidden');
-    phoneContactGrid.classList.remove('hidden'); // Tampilkan kontak
+    const q = currentQuestions[currentQuestionIndex];
+    const opts = document.querySelectorAll('.option:not(.disabled)');
+    let correctOpt;
+    opts.forEach(o => { if(o.dataset.answer === q.a) correctOpt = o; });
     
-    phoneModal.style.display = 'flex';
+    // Logic persentase
+    const total = 100;
+    const correctPercent = Math.floor(Math.random() * 30) + 40; // 40-70%
+    let remain = total - correctPercent;
+    
+    const container = getEl('poll-chart-container');
+    container.innerHTML = "";
+    
+    opts.forEach(o => {
+        let p = 0;
+        if(o === correctOpt) p = correctPercent;
+        else {
+            // Bagi sisa secara acak
+            const chunk = Math.floor(Math.random() * remain);
+            p = chunk;
+            remain -= chunk;
+        }
+        
+        // Render Bar
+        const prefix = o.querySelector('span').textContent.replace(':', '');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'poll-bar-wrapper';
+        wrapper.innerHTML = `
+            <div class="poll-bar" style="height: 0%"></div>
+            <div class="poll-label">${prefix}</div>
+        `;
+        container.appendChild(wrapper);
+        
+        // Animate
+        setTimeout(() => {
+            wrapper.querySelector('.poll-bar').style.height = p + "%";
+        }, 100);
+    });
+    
+    getEl('poll-modal').style.display = 'flex';
 }
 
-function generatePhoneAnswer(contactType) {
-    // 1. Ambil nama kontak
-    let name = "Teman";
-    if (contactType === 'expert') { name = "Ahli"; }
-    else if (contactType === 'friend1') { name = "Teman 1"; }
-    else if (contactType === 'friend2') { name = "Teman 2"; }
-    else if (contactType === 'friend3') { name = "Teman 3"; }
+function usePhoneLifeline() {
+    const btn = getEl('lifeline-phone');
+    if(btn.classList.contains('used')) return;
+    btn.classList.add('used');
+    stopTimer();
+    
+    // Reset view
+    getEl('phone-contact-grid').classList.remove('hidden');
+    getEl('phone-dialing-screen').classList.add('hidden');
+    getEl('phone-response-area').classList.add('hidden');
+    getEl('phone-modal').style.display = 'flex';
+}
 
-    // 2. Sembunyikan kontak, tampilkan 'dialing'
-    phoneTitle.textContent = `Menghubungi ${name}...`;
-    phoneContactGrid.classList.add('hidden');
-    phoneDialingScreen.classList.remove('hidden');
-    dialingStatus.textContent = `Menghubungi ${name}...`;
-
-    // 3. Mulai timer 10 detik
-    let dialTime = 10;
-    dialingTimerDisplay.textContent = dialTime;
-    clearInterval(dialInterval); 
-
-    dialInterval = setInterval(() => {
-        dialTime--;
-        dialingTimerDisplay.textContent = dialTime;
-        if (dialTime <= 0) {
-            // 4. Waktu habis, tampilkan jawaban
-            clearInterval(dialInterval);
-            phoneDialingScreen.classList.add('hidden');
-            phoneResponseArea.classList.remove('hidden');
-            
-            // 5. Generate jawaban (logika lama)
-            const correctAnswer = currentQuestions[currentQuestionIndex].a;
-            const visibleOptions = [];
-            optionButtons.forEach(btn => { if (!btn.classList.contains('disabled')) visibleOptions.push(btn.dataset.answer); });
-            const wrongOptions = visibleOptions.filter(opt => opt !== correctAnswer);
-            let finalAnswer, reliability = 0.6;
-            if (contactType === 'expert') { reliability = 0.9; }
-            if (Math.random() < reliability) finalAnswer = correctAnswer;
-            else finalAnswer = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
-            
-            let optionPrefix = "";
-            optionButtons.forEach(btn => {
-                if(btn.dataset.answer === finalAnswer){
-                    optionPrefix = btn.querySelector('span').textContent;
-                }
-            });
-
-            phoneTitle.textContent = `Panggilan dari ${name}`;
-            phoneResponseText.innerHTML = `Halo? Hmm, pertanyaan yang sulit... <br>Saya tidak 100% yakin, tapi saya rasa jawabannya adalah <strong>${optionPrefix} ${finalAnswer}</strong>.`;
+function generatePhoneAnswer(type) {
+    // 1. Switch to dialing
+    getEl('phone-contact-grid').classList.add('hidden');
+    getEl('phone-dialing-screen').classList.remove('hidden');
+    
+    let time = 10;
+    const timerSpan = getEl('dialing-timer');
+    timerSpan.textContent = time;
+    
+    const interval = setInterval(() => {
+        time--;
+        timerSpan.textContent = time;
+        if(time <= 0) {
+            clearInterval(interval);
+            showPhoneResult(type);
         }
     }, 1000);
 }
 
-function useFiftyFifty() {
-    if (fiftyLifelineBtn.classList.contains('used')) return;
-    fiftyLifelineBtn.classList.add('used');
-    const correctAnswer = currentQuestions[currentQuestionIndex].a;
-    const wrongOptions = [];
-    optionButtons.forEach(btn => { if (btn.dataset.answer !== correctAnswer) wrongOptions.push(btn); });
-    shuffleArray(wrongOptions);
-    wrongOptions[0].classList.add('disabled');
-    // Pastikan tidak error jika hanya ada 1 opsi salah (misal setelah 50/50 + poll)
-    if (wrongOptions.length > 1) {
-        wrongOptions[1].classList.add('disabled');
-    }
-}
-
-// --- Fungsi Host (Kustom) ---
-async function generateCustomGame() {
-    const csvUrl = gSheetInput.value;
-    if (!csvUrl || !csvUrl.includes('pub?output=csv')) {
-        alert("URL tidak valid. Pastikan itu adalah link Google Sheet yang dipublikasikan sebagai CSV.");
-        return;
-    }
-    generateLinkBtn.disabled = true;
-    generateLinkBtn.textContent = "Memproses CSV...";
-    try {
-        const response = await fetch(csvUrl);
-        if (!response.ok) throw new Error("Gagal mengambil data dari link CSV.");
-        const csvData = await response.text();
-        const questions = parseCSV(csvData);
-        if (questions.length === 0) throw new Error("Tidak ada soal yang ditemukan di CSV. Pastikan formatnya benar (q,o,a,difficulty).");
-        const easy = questions.filter(q => q.difficulty === 1).length;
-        const medium = questions.filter(q => q.difficulty === 2).length;
-        const hard = questions.filter(q => q.difficulty === 3).length;
-        if (easy < 5 || medium < 5 || hard < 5) {
-            throw new Error(`Soal tidak lengkap! Butuh min. 5 per level. Ditemukan: Mudah(${easy}), Sedang(${medium}), Sulit(${hard})`);
-        }
-        const docRef = await addDoc(collection(db, "custom_games"), {
-            questions: questions,
-            createdAt: serverTimestamp()
-        });
-        const shareLink = `${window.location.origin}${window.location.pathname}#${docRef.id}`;
-        shareableLinkInput.value = shareLink;
-        shareLinkModal.style.display = 'flex';
-        gSheetInput.value = "";
-    } catch (error) {
-        console.error("Gagal membuat game kustom:", error);
-        alert(`Error: ${error.message}`);
-    } finally {
-        generateLinkBtn.disabled = false;
-        generateLinkBtn.textContent = "Buat Link Game";
-    }
-}
-
-// --- Fungsi Helper (Utility) ---
-function parseCSV(csvData) {
-    const questions = [];
-    const lines = csvData.split(/\r?\n/); // Memisahkan baris
-    for (let i = 1; i < lines.length; i++) { // Mulai dari 1 untuk lewati header
-        const line = lines[i];
-        if (!line) continue;
-        
-        // CSV sederhana, split dengan koma
-        // Hati-hati: Ini akan rusak jika ada koma di dalam pertanyaan/opsi.
-        // Kita berasumsi koma HANYA pemisah
-        const parts = line.split(','); 
-        
-        if (parts.length >= 4) {
-            // .replace(/"/g, '') untuk membersihkan tanda kutip
-            const q = parts[0].trim().replace(/"/g, '');
-            const o = parts[1].trim().replace(/"/g, ''); 
-            const a = parts[2].trim().replace(/"/g, '');
-            const difficulty = parseInt(parts[3].trim().replace(/"/g, ''), 10);
-            
-            if (q && o && a && !isNaN(difficulty)) {
-                questions.push({ q, o, a, difficulty });
-            }
-        }
-    }
-    return questions;
-}
-
-function showQuestion() {
-    resetState();
-    const questionData = currentQuestions[currentQuestionIndex];
-    questionText.textContent = questionData.q;
+function showPhoneResult(type) {
+    getEl('phone-dialing-screen').classList.add('hidden');
+    getEl('phone-response-area').classList.remove('hidden');
     
-    let options = parseOptions(questionData.o);
-    options = shuffleArray(options);
+    const q = currentQuestions[currentQuestionIndex];
+    const correct = q.a;
+    // Simple logic: Expert 90% correct, Friend 60%
+    const isCorrect = Math.random() < (type === 'expert' ? 0.9 : 0.6);
     
-    optionsContainer.innerHTML = ""; // Kosongkan opsi lama
+    let ans = correct;
+    if(!isCorrect) {
+        // Pick wrong answer
+        const wrongOpts = Array.from(document.querySelectorAll('.option'))
+            .map(o => o.dataset.answer)
+            .filter(a => a !== correct);
+        ans = wrongOpts[Math.floor(Math.random() * wrongOpts.length)];
+    }
     
-    // Buat elemen opsi baru
-    options.forEach((optionText, index) => {
-        const prefix = String.fromCharCode(65 + index); // A, B, C, D, E...
-        
-        const optionEl = document.createElement('div');
-        optionEl.className = 'option';
-        optionEl.dataset.answer = optionText;
-        
-        optionEl.innerHTML = `
-            <span>${prefix}:</span>
-            <p>${optionText}</p>
-        `;
-        
-        optionsContainer.appendChild(optionEl);
+    // Find prefix
+    let prefix = "?";
+    document.querySelectorAll('.option').forEach(o => {
+        if(o.dataset.answer === ans) prefix = o.querySelector('span').textContent;
     });
-
-    // Query ulang 'optionButtons' setelah dibuat
-    optionButtons = document.querySelectorAll('.option');
-
-    updatePrizeLadder();
-    startTimer(60);
+    
+    getEl('phone-response-text').innerHTML = `Saya pikir jawabannya adalah <strong>${prefix} ${ans}</strong>`;
 }
-function parseOptions(optionsString) {
-    return optionsString.split('\\'); // Pemisah backslash
-}
-function processAnswer() {
-    confirmModal.style.display = 'none';
-    if (!selectedOption) return;
-    const selectedAnswer = selectedOption.dataset.answer; 
-    const correctAnswer = currentQuestions[currentQuestionIndex].a;
-    optionButtons.forEach(btn => btn.classList.add('disabled'));
-    if (selectedAnswer === correctAnswer) {
-        selectedOption.classList.add('correct');
-        correctAudio.play();
-        currentQuestionIndex++;
-        if (currentQuestionIndex === prizeLadderDisplay.length) {
-            currentScore = prizeLadderDisplay[currentQuestionIndex - 1];
-            currentScoreValue = prizeLadderValues[currentQuestionIndex - 1];
-            setTimeout(gameWin, 2000);
-        } else {
-            currentScore = prizeLadderDisplay[currentQuestionIndex - 1];
-            currentScoreValue = prizeLadderValues[currentQuestionIndex - 1];
-            setTimeout(showQuestion, 2000);
-        }
-    } else {
-        selectedOption.classList.add('wrong');
-        wrongAudio.play();
-        optionButtons.forEach(btn => { if (btn.dataset.answer === correctAnswer) btn.classList.add('correct'); });
-        currentScoreValue = 0;
-        if (currentQuestionIndex > 9) currentScoreValue = prizeLadderValues[9]; // Skor aman 32jt
-        else if (currentQuestionIndex > 4) currentScoreValue = prizeLadderValues[4]; // Skor aman 1jt
-        
-        if (currentScoreValue === 0) currentScore = "Rp 0";
-        else currentScore = prizeLadderDisplay[prizeLadderValues.indexOf(currentScoreValue)];
-        
-        setTimeout(gameOver, 2000);
+
+function useFiftyFifty() {
+    const btn = getEl('lifeline-5050');
+    if(btn.classList.contains('used')) return;
+    btn.classList.add('used');
+    
+    const q = currentQuestions[currentQuestionIndex];
+    const wrongOpts = Array.from(document.querySelectorAll('.option'))
+        .filter(o => o.dataset.answer !== q.a);
+    
+    // Hide 2 wrong answers
+    for(let i=0; i<2; i++) {
+        if(wrongOpts[i]) wrongOpts[i].classList.add('disabled');
     }
 }
-function cancelAnswer() {
-    confirmModal.style.display = 'none';
-    optionButtons.forEach(btn => btn.classList.remove('selected'));
-    selectedOption = null;
-    startTimer(parseInt(timerDisplay.textContent));
-}
-function gameOver() {
-    bgAudio.pause();
-    bgAudio.currentTime = 0;
-    alert(`Permainan Selesai, ${playerName}!\nSkor Anda: ${currentScore}`);
-    saveScore(playerName, currentScoreValue);
-    gameScreen.classList.remove('active');
-    startScreen.classList.add('active');
-}
-function gameWin() {
-    bgAudio.pause();
-    alert(`SELAMAT, ${playerName}!\nAnda telah memenangkan ${currentScore}!`);
-    saveScore(playerName, currentScoreValue);
-    gameScreen.classList.remove('active');
-    startScreen.classList.add('active');
-}
-function startTimer(duration) {
-    timer = duration;
-    timerDisplay.textContent = timer;
+
+// --- Utils ---
+function startTimer(val = 60) {
     clearInterval(timerInterval);
+    let t = val;
+    getEl('timer').textContent = t;
     timerInterval = setInterval(() => {
-        timer--;
-        timerDisplay.textContent = timer;
-        if (timer <= 0) {
+        t--;
+        getEl('timer').textContent = t;
+        if(t <= 0) {
             clearInterval(timerInterval);
-            wrongAudio.play();
-            currentScoreValue = 0;
-            if (currentQuestionIndex > 9) currentScoreValue = prizeLadderValues[9];
-            else if (currentQuestionIndex > 4) currentScoreValue = prizeLadderValues[4];
-            currentScore = (currentScoreValue === 0) ? "Rp 0" : prizeLadderDisplay[prizeLadderValues.indexOf(currentScoreValue)];
-            gameOver();
+            loseGame();
         }
     }, 1000);
 }
 function stopTimer() { clearInterval(timerInterval); }
-function resetState() {
-    // 'optionButtons' sekarang di-query ulang di showQuestion
-    optionButtons.forEach(btn => {
-        btn.classList.remove('selected', 'correct', 'wrong', 'disabled');
-    });
-    selectedOption = null;
-    confirmModal.style.display = 'none';
+
+function sortQuestionsByDifficulty(allQ) {
+    const easy = allQ.filter(x => x.difficulty == 1);
+    const med = allQ.filter(x => x.difficulty == 2);
+    const hard = allQ.filter(x => x.difficulty == 3);
+    
+    // Shuffle
+    easy.sort(() => Math.random() - 0.5);
+    med.sort(() => Math.random() - 0.5);
+    hard.sort(() => Math.random() - 0.5);
+    
+    if(easy.length < 5 || med.length < 5 || hard.length < 5) return [];
+    return [...easy.slice(0,5), ...med.slice(0,5), ...hard.slice(0,5)];
 }
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+
+function parseCSV(text) {
+    // Simple CSV parser
+    const lines = text.split(/\r?\n/).slice(1); // skip header
+    return lines.map(l => {
+        // Handle comma split carefully
+        const parts = l.split(',');
+        if(parts.length < 4) return null;
+        return {
+            q: parts[0],
+            o: parts[1],
+            a: parts[2],
+            difficulty: parseInt(parts[3])
+        };
+    }).filter(x => x);
 }
-function buildPrizeLadder() {
-    prizeLadderList.innerHTML = "";
-    const safePoints = [4, 9, 14]; // Index 4 (soal ke-5), 9 (soal ke-10), 14 (soal ke-15)
-    prizeLadderDisplay.forEach((prize, index) => {
+
+function buildLadder() {
+    const ul = getEl('prize-ladder');
+    ul.innerHTML = "";
+    prizeLadderDisplay.forEach((p, i) => {
         const li = document.createElement('li');
-        li.textContent = `${index + 1}. ${prize}`;
-        li.dataset.level = index;
-        if (safePoints.includes(index)) li.classList.add('safe');
-        prizeLadderList.appendChild(li);
+        li.textContent = `${i+1}. ${p}`;
+        if(i===4 || i===9 || i===14) li.classList.add('safe');
+        ul.appendChild(li);
     });
 }
-function updatePrizeLadder() {
-    const allLevels = prizeLadderList.querySelectorAll('li');
-    allLevels.forEach(li => {
-        if (parseInt(li.dataset.level) === currentQuestionIndex) li.classList.add('current');
+function updateLadder() {
+    const lis = document.querySelectorAll('#prize-ladder li');
+    lis.forEach((li, i) => {
+        if(i === currentQuestionIndex) li.classList.add('current');
         else li.classList.remove('current');
     });
 }
-async function saveScore(name, scoreValue) {
-    console.log(`Menyimpan skor ke Firebase: ${name} - ${scoreValue}`);
+
+// --- Host Functions ---
+async function generateCustomGame() {
+    const url = getEl('google-sheet-input').value;
+    if(!url.includes('output=csv')) return alert("Link harus CSV!");
+    
     try {
-        const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
-        await addDoc(collection(db, leaderboardCollection), {
-            nama: name,
-            skor: scoreValue,
-            tanggal: serverTimestamp()
+        const res = await fetch(url);
+        const txt = await res.text();
+        const qs = parseCSV(txt);
+        
+        if(qs.length < 15) return alert("Soal kurang!");
+        
+        const ref = await addDoc(collection(db, "custom_games"), {
+            questions: qs,
+            createdAt: serverTimestamp()
         });
-        await showLeaderboard(leaderboardCollection);
-    } catch (error) {
-        console.error("Error Gagal menyimpan skor: ", error);
-        alert("Gagal menyimpan skor Anda ke leaderboard.");
+        
+        getEl('shareable-link-input').value = window.location.origin + window.location.pathname + "#" + ref.id;
+        getEl('share-link-modal').style.display = 'flex';
+    } catch(e) {
+        alert("Gagal: " + e.message);
     }
 }
-async function showLeaderboard(leaderboardCollection) {
-    console.log(`Mengambil leaderboard dari ${leaderboardCollection}...`);
-    let leaderboardText = `--- TOP 10 LEADERBOARD (${customGameId ? 'Kuis Kustom' : 'Default'}) ---\n`;
+
+async function viewCustomScores() {
+    const id = getEl('view-quiz-id-input').value;
+    if(!id) return;
+    
+    const tbody = getEl('score-table-body');
+    tbody.innerHTML = "Loading...";
+    
     try {
-        const q = query(collection(db, leaderboardCollection), orderBy("skor", "desc"), limit(10));
-        const snapshot = await getDocs(q);
-        let rank = 1;
-        if (snapshot.empty) leaderboardText += "\n(Belum ada data skor)";
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            let scoreString = new Intl.NumberFormat('id-ID', { 
-                style: 'currency', currency: 'IDR', minimumFractionDigits: 0 
-            }).format(data.skor);
-            leaderboardText += `${rank}. ${data.nama} - ${scoreString}\n`;
-            rank++;
+        const q = query(collection(db, `leaderboard_${id}`), orderBy('skor', 'desc'), limit(50));
+        const snap = await getDocs(q);
+        
+        tbody.innerHTML = "";
+        snap.forEach((d, i) => {
+            const data = d.data();
+            const row = `<tr><td>${i+1}</td><td>${data.nama}</td><td>${data.skor.toLocaleString()}</td><td>-</td></tr>`;
+            tbody.innerHTML += row;
         });
-        alert(leaderboardText);
-    } catch (error) {
-        console.error("Error mengambil leaderboard: ", error);
+        getEl('score-view-modal').style.display = 'flex';
+    } catch(e) {
+        alert("Gagal ambil skor.");
     }
+}
+
+function exportScoresToExcel() {
+    const wb = XLSX.utils.table_to_book(getEl('score-table'));
+    XLSX.writeFile(wb, "Leaderboard.xlsx");
 }
