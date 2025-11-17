@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- Layar Awal (Tidak ada perubahan) -->
     <div id="start-screen" class="screen active">
         <div class="start-box">
             <img src="logo.png" 
@@ -25,6 +24,7 @@
             <div id="player-controls">
                 <h2>Mulai Bermain</h2>
                 <input type="text" id="player-name-input" placeholder="Masukkan nama Anda">
+                
                 <div id="fase-select-container">
                     <select id="fase-select">
                         <option value="A">Fase A (Default)</option>
@@ -38,73 +38,63 @@
                 <button id="start-game-btn">Mulai Bermain</button>
             </div>
 
-            <hr id="host-separator">
-            <div id="host-controls">
-                <button id="toggle-host-btn">Panel Host (Buat Kuis)</button>
-                <div id="host-panel" class="hidden">
-                    <p>Tempelkan link Google Sheet (yang sudah dipublikasi sebagai CSV):</p>
-                    <input type="text" id="google-sheet-input" placeholder="https.../pub?output=csv">
-                    <button id="generate-link-btn">Buat Link Game</button>
-                    <a href="#" id="how-to-csv-link" class="how-to-link">Bagaimana caranya?</a>
+            <div id="host-section-container">
+                <hr id="host-separator">
+                <div id="host-controls">
+                    <button id="toggle-host-btn">Panel Host (Buat Kuis)</button>
+                    <div id="host-panel" class="hidden">
+                        <p>Tempelkan link Google Sheet (CSV):</p>
+                        <input type="text" id="google-sheet-input" placeholder="https.../pub?output=csv">
+                        <button id="generate-link-btn">Buat Link Game</button>
+                        <a href="#" id="how-to-csv-link" class="how-to-link">Bagaimana caranya?</a>
+                    </div>
                 </div>
             </div>
             
-            <hr class="host-hr">
-            <div id="view-scores-controls">
-                <h3>Lihat Hasil Kuis Kustom</h3>
-                <p>Masukkan ID Kuis Anda (bagian setelah #):</p>
-                <input type="text" id="view-quiz-id-input" placeholder="aBcDeFg123">
-                <button id="view-scores-btn">Tampilkan Skor</button>
+            <div id="score-section-container">
+                <hr class="host-hr">
+                <div id="view-scores-controls">
+                    <h3>Lihat Hasil Kuis Kustom</h3>
+                    <p>Masukkan ID Kuis Anda:</p>
+                    <input type="text" id="view-quiz-id-input" placeholder="aBcDeFg123">
+                    <button id="view-scores-btn">Tampilkan Skor</button>
+                </div>
             </div>
 
-            <!-- Modal Petunjuk -->
             <div id="how-to-modal" class="modal-overlay">
                 <div class="modal-content-small">
                     <h3>Cara Membuat Link CSV</h3>
                     <ol>
-                        <li>Buka Google Sheet Anda.</li>
+                        <li>Buka Google Sheet.</li>
                         <li>Buat 4 kolom: <strong>q</strong>, <strong>o</strong>, <strong>a</strong>, <strong>difficulty</strong>.</li>
-                        <li>Isi soal (Opsi dipisah dgn `\`).</li>
-                        <li>Pastikan ada min. 5 soal per level.</li>
-                        <li>Klik <strong>File > Bagikan > Publikasikan ke web</strong>.</li>
-                        <li>Pilih Sheet Anda & format <strong>"Nilai yang dipisahkan koma (.csv)"</strong>.</li>
-                        <li>Klik <strong>"Publikasikan"</strong> dan salin link.</li>
+                        <li>Isi soal (Opsi dipisah `\`).</li>
+                        <li>File > Bagikan > Publikasikan ke web > CSV.</li>
                     </ol>
                     <button id="close-modal-btn">Mengerti</button>
                 </div>
             </div>
 
-            <!-- Modal Link Kustom -->
             <div id="share-link-modal" class="modal-overlay">
                 <div class="modal-content-small">
-                    <h3>Link Kuis Kustom Berhasil Dibuat!</h3>
-                    <p>Bagikan link ini kepada pemain Anda:</p>
+                    <h3>Link Kuis Siap!</h3>
                     <input type="text" id="shareable-link-input" readonly>
                     <button id="copy-link-btn">Salin Link</button>
                     <button id="close-share-modal-btn">Tutup</button>
                 </div>
             </div>
 
-            <!-- Modal Tampilan Skor Host -->
             <div id="score-view-modal" class="modal-overlay">
                 <div class="modal-content-large">
-                    <h3>Hasil Kuis Kustom</h3>
-                    <p id="score-view-title">Leaderboard untuk Kuis ID: ...</p>
+                    <h3>Hasil Kuis</h3>
+                    <p id="score-view-title">...</p>
                     <div class="table-container">
                         <table id="score-table">
-                            <thead>
-                                <tr>
-                                    <th>Peringkat</th>
-                                    <th>Nama</th>
-                                    <th>Skor</th>
-                                    <th>Tanggal</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>#</th><th>Nama</th><th>Skor</th><th>Tgl</th></tr></thead>
                             <tbody id="score-table-body"></tbody>
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button id="export-excel-btn">Export ke Excel (.xlsx)</button>
+                        <button id="export-excel-btn">Export Excel</button>
                         <button id="close-score-view-btn">Tutup</button>
                     </div>
                 </div>
@@ -112,7 +102,6 @@
         </div>
     </div>
 
-    <!-- Layar Permainan -->
     <div id="game-screen" class="screen">
         <div class="game-container">
             <div class="quiz-main">
@@ -126,48 +115,38 @@
                 </div>
                 <div class="qa-container">
                     <div id="question-container">
-                        <p id="question-text">Pertanyaan akan muncul di sini...</p>
+                        <p id="question-text">...</p>
                     </div>
-                    <!-- Opsi akan dibuat oleh JavaScript di sini -->
                     <div id="options-container"></div>
                 </div>
             </div>
-            
             <div class="prize-ladder-container">
                 <ul id="prize-ladder"></ul>
             </div>
         </div>
 
-        <!-- Modal Konfirmasi Jawaban -->
         <div id="confirm-modal" class="modal-overlay">
              <div class="modal-content">
-                <p>Yakin dengan jawaban anda?</p>
+                <p>Yakin?</p>
                 <button id="confirm-yes">YA</button>
                 <button id="confirm-no">TIDAK</button>
             </div>
         </div>
 
-        <!-- ***** PERUBAHAN v13: Alur Modal Telepon Diperbaiki ***** -->
         <div id="phone-modal" class="modal-overlay">
             <div class="modal-content-small">
                 <h3 id="phone-title">Bantuan Telepon</h3>
-                
-                <!-- Layar 1: Pilihan Kontak (Default) -->
                 <div id="phone-contact-grid">
-                    <div class="phone-contact" data-contact="friend1"><img src="friend1.png" alt="Teman 1"><span>Teman 1</span></div>
-                    <div class="phone-contact" data-contact="friend2"><img src="friend2.png" alt="Teman 2"><span>Teman 2</span></div>
-                    <div class="phone-contact" data-contact="friend3"><img src="friend3.png" alt="Teman 3"><span>Teman 3</span></div>
-                    <div class="phone-contact" data-contact="expert"><img src="Ahli"><span>Ahli</span></div>
+                    <div class="phone-contact" data-contact="friend1"><img src="friend1.png" onerror="this.src='https://placehold.co/80x80?text=T1'"><span>Teman 1</span></div>
+                    <div class="phone-contact" data-contact="friend2"><img src="friend2.png" onerror="this.src='https://placehold.co/80x80?text=T2'"><span>Teman 2</span></div>
+                    <div class="phone-contact" data-contact="friend3"><img src="friend3.png" onerror="this.src='https://placehold.co/80x80?text=T3'"><span>Teman 3</span></div>
+                    <div class="phone-contact" data-contact="expert"><img src="expert.png" onerror="this.src='https://placehold.co/80x80?text=Ahli'"><span>Ahli</span></div>
                 </div>
-
-                <!-- Layar 2: Simulasi Dialing (Awalnya tersembunyi) -->
                 <div id="phone-dialing-screen" class="hidden">
                     <p id="dialing-status">Menghubungi...</p>
                     <div class="phone-icon">📞</div>
-                    <p>Waktu tersisa: <span id="dialing-timer">10</span> detik</p>
+                    <p>Waktu: <span id="dialing-timer">10</span>s</p>
                 </div>
-
-                <!-- Layar 3: Jawaban (Awalnya tersembunyi) -->
                 <div id="phone-response-area" class="hidden">
                     <p id="phone-response-text">...</p>
                     <button id="close-phone-modal-btn">Tutup</button>
@@ -175,26 +154,20 @@
             </div>
         </div>
 
-        <!-- Modal Statistik Polling -->
         <div id="poll-modal" class="modal-overlay">
             <div class="modal-content-small">
-                <h3>Hasil Polling Penonton</h3>
-                <div id="poll-chart-container">
-                    <!-- Diagram batang akan dibuat oleh JS di sini -->
-                </div>
+                <h3>Polling Penonton</h3>
+                <div id="poll-chart-container"></div>
                 <button id="close-poll-modal-btn">Tutup</button>
             </div>
         </div>
-
     </div>
 
-    <!-- Elemen Audio -->
     <audio id="opening-audio" src="opening.mp3"></audio>
     <audio id="bg-audio" src="musik.mp3" loop></audio>
     <audio id="correct-audio" src="benar.mp3"></audio>
     <audio id="wrong-audio" src="salah.mp3"></audio>
 
-    <!-- Library Eksternal -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script type="module" src="script.js"></script>
 </body>
