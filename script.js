@@ -11,47 +11,33 @@ const firebaseConfig = {
     appId: "1:259209976100:web:df20a25b08a8fb5ded3bb1"
 };
 
-// Init Firebase Aman
 let db;
 try {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
-} catch (e) {
-    console.error("Firebase Init Error:", e);
-}
+} catch (e) { console.error("Firebase Init Error:", e); }
 
-// Data
 const prizeLadderValues = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderDisplay = prizeLadderValues.map(v => "Rp " + v.toLocaleString('id-ID'));
 
 let playerName = "", currentQuestions = [], currentQuestionIndex = 0, currentScore = 0;
 let timerInterval, dialInterval, customGameId = null, selectedOption = null;
 
-// Helper
 const getEl = (id) => document.getElementById(id);
 
-// --- MAIN INIT ---
 window.addEventListener('DOMContentLoaded', () => {
-    checkURLHash(); // Cek link kustom DULU
-    setupEventListeners(); // Baru pasang tombol
+    checkURLHash();
+    setupEventListeners();
 });
 
-// Logika Link Kustom & Hapus Panel Host
 async function checkURLHash() {
     const hash = window.location.hash.substring(1);
     if (hash) {
         customGameId = hash;
-        
-        // SEMBUNYIKAN ELEMEN HOST & FASE (FIXED)
-        const idsToHide = ['fase-select-container', 'host-section-container', 'score-section-container', 'host-separator'];
-        idsToHide.forEach(id => {
-            const el = getEl(id);
-            if(el) el.classList.add('hidden');
+        ['fase-select-container', 'host-section-container', 'score-section-container', 'host-separator'].forEach(id => {
+            if(getEl(id)) getEl(id).classList.add('hidden');
         });
-
-        // Tampilkan Info Kustom
-        const infoEl = getEl('custom-game-info');
-        if(infoEl) infoEl.classList.remove('hidden');
+        if(getEl('custom-game-info')) getEl('custom-game-info').classList.remove('hidden');
 
         try {
             const docRef = doc(db, "custom_games", customGameId);
@@ -65,18 +51,12 @@ async function checkURLHash() {
                 } else {
                     getEl('custom-game-status').textContent = "Soal Kustom Siap!";
                 }
-            } else {
-                alert("Kuis tidak ditemukan!");
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Gagal memuat kuis kustom.");
-        }
+            } else { alert("Kuis tidak ditemukan!"); }
+        } catch (e) { console.error(e); }
     }
 }
 
 function setupEventListeners() {
-    // Gunakan '?' (optional chaining) untuk mencegah error null
     getEl('start-game-btn')?.addEventListener('click', startGame);
     getEl('confirm-yes')?.addEventListener('click', processAnswer);
     getEl('confirm-no')?.addEventListener('click', () => getEl('confirm-modal').style.display = 'none');
@@ -92,11 +72,11 @@ function setupEventListeners() {
     getEl('close-phone-modal-btn')?.addEventListener('click', () => {
         getEl('phone-modal').style.display = 'none';
         clearInterval(dialInterval);
-        startTimer();
+        if(getEl('game-screen').classList.contains('active')) startTimer(parseInt(getEl('timer').textContent));
     });
     getEl('close-poll-modal-btn')?.addEventListener('click', () => {
         getEl('poll-modal').style.display = 'none';
-        startTimer();
+        if(getEl('game-screen').classList.contains('active')) startTimer(parseInt(getEl('timer').textContent));
     });
     getEl('close-score-view-btn')?.addEventListener('click', () => getEl('score-view-modal').style.display = 'none');
     getEl('close-share-modal-btn')?.addEventListener('click', () => getEl('share-link-modal').style.display = 'none');
@@ -123,8 +103,6 @@ function setupEventListeners() {
         c.addEventListener('click', () => generatePhoneAnswer(c.dataset.contact));
     });
 }
-
-// --- Game Functions ---
 
 async function startGame() {
     playerName = getEl('player-name-input').value.trim();
@@ -239,14 +217,19 @@ function resetGame() {
     getEl('start-game-btn').textContent = "Mulai Bermain";
 }
 
-// --- LIFELINES ---
+// --- LIFELINES (PERBAIKAN PENTING) ---
 
+// 1. STATISTIK (Fixed Animation)
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
     if(btn.classList.contains('used')) return;
     btn.classList.add('used');
     stopTimer();
+
+    // 1. TAMPILKAN MODAL DULU (Agar browser tahu ukuran container)
+    getEl('poll-modal').style.display = 'flex';
     
+    // 2. Kalkulasi Persentase
     const q = currentQuestions[currentQuestionIndex];
     const opts = document.querySelectorAll('.option:not(.disabled)');
     let correctOpt;
@@ -259,6 +242,7 @@ function usePollLifeline() {
     const container = getEl('poll-chart-container');
     container.innerHTML = "";
     
+    // 3. Buat Elemen Bar (Tinggi Awal 0%)
     opts.forEach(o => {
         let p = 0;
         if(o === correctOpt) p = correctPercent;
@@ -271,26 +255,38 @@ function usePollLifeline() {
         const prefix = o.querySelector('span').textContent.replace(':', '');
         const wrapper = document.createElement('div');
         wrapper.className = 'poll-bar-wrapper';
-        wrapper.innerHTML = `
-            <div class="poll-bar" style="height: 0%"></div>
-            <div class="poll-label">${prefix}</div>
-        `;
-        container.appendChild(wrapper);
         
+        // Buat bar dengan height 0
+        const bar = document.createElement('div');
+        bar.className = 'poll-bar';
+        bar.style.height = '0%'; 
+        
+        // Tambah label persentase agar jelas
+        bar.setAttribute('title', p + '%'); 
+
+        const label = document.createElement('div');
+        label.className = 'poll-label';
+        label.innerHTML = `${prefix}<br><small style="font-size:0.8rem">${p}%</small>`;
+        
+        wrapper.appendChild(bar);
+        wrapper.appendChild(label);
+        container.appendChild(wrapper);
+
+        // 4. Animasikan Tinggi (Dengan jeda)
         setTimeout(() => {
-            wrapper.querySelector('.poll-bar').style.height = p + "%";
+            bar.style.height = p + "%";
         }, 100);
     });
-    
-    getEl('poll-modal').style.display = 'flex';
 }
 
+// 2. TELEPON (Fixed Flow: Kontak -> Dial -> Answer)
 function usePhoneLifeline() {
     const btn = getEl('lifeline-phone');
     if(btn.classList.contains('used')) return;
     btn.classList.add('used');
     stopTimer();
     
+    // Reset ke layar Kontak
     getEl('phone-contact-grid').classList.remove('hidden');
     getEl('phone-dialing-screen').classList.add('hidden');
     getEl('phone-response-area').classList.add('hidden');
@@ -298,6 +294,7 @@ function usePhoneLifeline() {
 }
 
 function generatePhoneAnswer(type) {
+    // Pindah ke layar Dialing
     getEl('phone-contact-grid').classList.add('hidden');
     getEl('phone-dialing-screen').classList.remove('hidden');
     
@@ -311,7 +308,7 @@ function generatePhoneAnswer(type) {
         timerSpan.textContent = time;
         if(time <= 0) {
             clearInterval(dialInterval);
-            showPhoneResult(type);
+            showPhoneResult(type); // Tampilkan hasil
         }
     }, 1000);
 }
@@ -354,7 +351,7 @@ function useFiftyFifty() {
     }
 }
 
-// --- Utils ---
+// --- Utils & Host ---
 function startTimer(val = 60) {
     clearInterval(timerInterval);
     let t = val;
@@ -412,11 +409,9 @@ function updateLadder() {
     });
 }
 
-// --- Host Functions ---
 async function generateCustomGame() {
     const url = getEl('google-sheet-input').value;
     if(!url.includes('output=csv')) return alert("Link harus CSV!");
-    
     try {
         const res = await fetch(url);
         const txt = await res.text();
