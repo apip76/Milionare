@@ -17,8 +17,15 @@ const firebaseConfig = {
 };
 
 // Inisialisasi Firebase dan Firestore
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let db;
+try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    console.log("Firebase v13 terhubung.");
+} catch (e) {
+    console.error("Gagal inisialisasi Firebase:", e);
+    alert("Gagal terhubung ke server kuis. Coba refresh halaman.");
+}
 
 // --- Tangga Hadiah ---
 const prizeLadderDisplay = [
@@ -42,9 +49,9 @@ let currentScore = "Rp 0";
 let currentScoreValue = 0;
 let timer;
 let timerInterval;
-let dialInterval; // Timer untuk simulasi telepon
+let dialInterval; 
 let selectedOption = null;
-let optionButtons = []; // ***** v12: Diubah menjadi array kosong
+let optionButtons = []; // Diisi saat showQuestion()
 
 // --- Elemen DOM ---
 const startScreen = document.getElementById('start-screen');
@@ -55,7 +62,6 @@ const faseSelect = document.getElementById('fase-select');
 const faseSelectContainer = document.getElementById('fase-select-container');
 const questionText = document.getElementById('question-text');
 const optionsContainer = document.getElementById('options-container');
-// 'optionButtons' sekarang di-query secara dinamis
 const timerDisplay = document.getElementById('timer');
 const prizeLadderList = document.getElementById('prize-ladder');
 const confirmModal = document.getElementById('confirm-modal');
@@ -83,6 +89,7 @@ const phoneLifelineBtn = document.getElementById('lifeline-phone');
 const phoneModal = document.getElementById('phone-modal');
 const phoneTitle = document.getElementById('phone-title');
 const phoneDialingScreen = document.getElementById('phone-dialing-screen');
+const dialingStatus = document.getElementById('dialing-status');
 const dialingTimerDisplay = document.getElementById('dialing-timer');
 const phoneContactGrid = document.getElementById('phone-contact-grid');
 const phoneResponseArea = document.getElementById('phone-response-area');
@@ -97,25 +104,26 @@ const scoreViewTitle = document.getElementById('score-view-title');
 const scoreTableBody = document.getElementById('score-table-body');
 const closeScoreViewBtn = document.getElementById('close-score-view-btn');
 const exportExcelBtn = document.getElementById('export-excel-btn'); 
-
-// ***** v12: Elemen DOM untuk Modal Statistik BARU *****
 const pollModal = document.getElementById('poll-modal');
 const pollChartContainer = document.getElementById('poll-chart-container');
 const closePollModalBtn = document.getElementById('close-poll-modal-btn');
 
 // --- Pengecekan URL (Dijalankan saat halaman dimuat) ---
-window.addEventListener('DOMContentLoaded', checkURLHash);
+try {
+    window.addEventListener('DOMContentLoaded', checkURLHash);
+} catch(e) { console.error("Gagal menambah listener DOMContentLoaded", e); }
+
 async function checkURLHash() {
-    const hash = window.location.hash.substring(1);
-    if (hash) {
-        customGameId = hash;
-        customGameInfo.classList.remove('hidden'); 
-        faseSelectContainer.classList.add('hidden');
-        hostControls.classList.add('hidden');
-        document.getElementById('host-separator').classList.add('hidden');
-        document.querySelector('.host-hr').classList.add('hidden');
-        document.getElementById('view-scores-controls').classList.add('hidden');
-        try {
+    try {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            customGameId = hash;
+            customGameInfo.classList.remove('hidden'); 
+            faseSelectContainer.classList.add('hidden');
+            hostControls.classList.add('hidden');
+            document.getElementById('host-separator').classList.add('hidden');
+            document.querySelector('.host-hr').classList.add('hidden');
+            document.getElementById('view-scores-controls').classList.add('hidden');
             const docRef = doc(db, "custom_games", customGameId);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -131,60 +139,68 @@ async function checkURLHash() {
                 customGameStatus.textContent = "Error: Kuis kustom dengan ID ini tidak ditemukan!";
                 startBtn.disabled = true;
             }
-        } catch (error) {
-            console.error("Error mengambil kuis kustom:", error);
-            customGameStatus.textContent = "Error: Gagal memuat kuis.";
-            startBtn.disabled = true;
         }
+    } catch (error) {
+        console.error("Error mengambil kuis kustom:", error);
+        customGameStatus.textContent = "Error: Gagal memuat kuis.";
+        if (startBtn) startBtn.disabled = true;
     }
 }
 
-// --- Event Listeners (Semua tombol) ---
-startBtn.addEventListener('click', startGame);
-confirmYesBtn.addEventListener('click', processAnswer);
-confirmNoBtn.addEventListener('click', cancelAnswer);
-optionsContainer.addEventListener('click', (e) => {
-    const clickedOption = e.target.closest('.option'); 
-    if (!clickedOption || clickedOption.classList.contains('disabled')) return;
-    optionButtons.forEach(btn => btn.classList.remove('selected'));
-    clickedOption.classList.add('selected');
-    selectedOption = clickedOption;
-    stopTimer();
-    confirmModal.style.display = 'flex';
-});
-toggleHostBtn.addEventListener('click', () => hostPanel.classList.toggle('hidden'));
-howToCsvLink.addEventListener('click', (e) => { e.preventDefault(); howToModal.style.display = 'flex'; });
-closeModalBtn.addEventListener('click', () => howToModal.style.display = 'none');
-generateLinkBtn.addEventListener('click', generateCustomGame);
-closeShareModalBtn.addEventListener('click', () => shareLinkModal.style.display = 'none');
-copyLinkBtn.addEventListener('click', () => {
-    shareableLinkInput.select();
-    document.execCommand('copy');
-    copyLinkBtn.textContent = 'Disalin!';
-    setTimeout(() => { copyLinkBtn.textContent = 'Salin Link'; }, 2000);
-});
-phoneLifelineBtn.addEventListener('click', usePhoneLifeline);
-phoneContactGrid.addEventListener('click', (e) => {
-    const contact = e.target.closest('.phone-contact');
-    if (contact) generatePhoneAnswer(contact.dataset.contact);
-});
-closePhoneModalBtn.addEventListener('click', () => {
-    phoneModal.style.display = 'none';
-    clearInterval(dialInterval); // Pastikan timer dial berhenti
-    startTimer(parseInt(timerDisplay.textContent));
-});
-fiftyLifelineBtn.addEventListener('click', useFiftyFifty);
-viewScoresBtn.addEventListener('click', viewCustomScores);
-closeScoreViewBtn.addEventListener('click', () => {
-    scoreViewModal.style.display = 'none';
-});
-exportExcelBtn.addEventListener('click', exportScoresToExcel); 
-pollLifelineBtn.addEventListener('click', usePollLifeline); 
-// ***** v12: Listener untuk tombol tutup modal statistik *****
-closePollModalBtn.addEventListener('click', () => {
-    pollModal.style.display = 'none';
-    startTimer(parseInt(timerDisplay.textContent));
-});
+// --- Event Listeners (Dibungkus Try-Catch) ---
+try {
+    startBtn.addEventListener('click', startGame);
+    confirmYesBtn.addEventListener('click', processAnswer);
+    confirmNoBtn.addEventListener('click', cancelAnswer);
+    optionsContainer.addEventListener('click', (e) => {
+        const clickedOption = e.target.closest('.option'); 
+        if (!clickedOption || clickedOption.classList.contains('disabled')) return;
+        optionButtons.forEach(btn => btn.classList.remove('selected'));
+        clickedOption.classList.add('selected');
+        selectedOption = clickedOption;
+        stopTimer();
+        confirmModal.style.display = 'flex';
+    });
+    toggleHostBtn.addEventListener('click', () => hostPanel.classList.toggle('hidden'));
+    howToCsvLink.addEventListener('click', (e) => { e.preventDefault(); howToModal.style.display = 'flex'; });
+    closeModalBtn.addEventListener('click', () => howToModal.style.display = 'none');
+    generateLinkBtn.addEventListener('click', generateCustomGame);
+    closeShareModalBtn.addEventListener('click', () => shareLinkModal.style.display = 'none');
+    copyLinkBtn.addEventListener('click', () => {
+        shareableLinkInput.select();
+        document.execCommand('copy');
+        copyLinkBtn.textContent = 'Disalin!';
+        setTimeout(() => { copyLinkBtn.textContent = 'Salin Link'; }, 2000);
+    });
+    phoneLifelineBtn.addEventListener('click', usePhoneLifeline);
+    phoneContactGrid.addEventListener('click', (e) => {
+        const contact = e.target.closest('.phone-contact');
+        if (contact) generatePhoneAnswer(contact.dataset.contact);
+    });
+    closePhoneModalBtn.addEventListener('click', () => {
+        phoneModal.style.display = 'none';
+        clearInterval(dialInterval); 
+        if(gameScreen.classList.contains('active')) {
+            startTimer(parseInt(timerDisplay.textContent));
+        }
+    });
+    fiftyLifelineBtn.addEventListener('click', useFiftyFifty);
+    viewScoresBtn.addEventListener('click', viewCustomScores);
+    closeScoreViewBtn.addEventListener('click', () => {
+        scoreViewModal.style.display = 'none';
+    });
+    exportExcelBtn.addEventListener('click', exportScoresToExcel); 
+    pollLifelineBtn.addEventListener('click', usePollLifeline); 
+    closePollModalBtn.addEventListener('click', () => {
+        pollModal.style.display = 'none';
+        if(gameScreen.classList.contains('active')) {
+            startTimer(parseInt(timerDisplay.textContent));
+        }
+    });
+} catch (e) {
+    console.error("Error saat menambahkan event listener:", e);
+    alert("Terjadi error saat memuat script. Pastikan file index.html dan script.js Anda sinkron.");
+}
 
 // --- Fungsi Lihat Hasil Kuis (v6) ---
 async function viewCustomScores() {
@@ -230,11 +246,16 @@ async function viewCustomScores() {
 
 // --- FUNGSI (v8) UNTUK EXPORT EXCEL ---
 function exportScoresToExcel() {
-    const table = document.getElementById('score-table');
-    const wb = XLSX.utils.table_to_book(table, {sheet: "Leaderboard"});
-    const quizId = viewQuizIdInput.value.split('#').pop().trim() || "leaderboard";
-    const filename = `Skor_${quizId}.xlsx`;
-    XLSX.writeFile(wb, filename);
+    try {
+        const table = document.getElementById('score-table');
+        const wb = XLSX.utils.table_to_book(table, {sheet: "Leaderboard"});
+        const quizId = viewQuizIdInput.value.split('#').pop().trim() || "leaderboard";
+        const filename = `Skor_${quizId}.xlsx`;
+        XLSX.writeFile(wb, filename);
+    } catch(e) {
+        console.error("Gagal export excel:", e);
+        alert("Gagal export ke Excel. Pastikan library SheetJS termuat.");
+    }
 }
 
 // --- Fungsi Game ---
@@ -305,7 +326,7 @@ function sortQuestionsByDifficulty(allQuestions) {
 
 // --- Fungsi Bantuan (Lifelines) ---
 
-// ***** v12: Fungsi Bantuan Statistik Diperbarui *****
+// ***** v13: Perbaikan Bug Diagram Statistik *****
 function usePollLifeline() {
     if (pollLifelineBtn.classList.contains('used')) return;
     stopTimer();
@@ -318,18 +339,12 @@ function usePollLifeline() {
             options.push(btn.dataset.answer);
         }
     });
-
-    // Buat hasil polling palsu
     let pollResults = {};
     let remainingPercent = 100;
-    
-    // Beri jawaban benar persentase tinggi (misal 50% - 75%)
     const correctPercent = Math.floor(Math.random() * 26) + 50; // 50-75
     pollResults[correctAnswer] = correctPercent;
     remainingPercent -= correctPercent;
-
     const wrongOptions = options.filter(opt => opt !== correctAnswer);
-    
     wrongOptions.forEach((opt, index) => {
         if (index === wrongOptions.length - 1) {
             pollResults[opt] = remainingPercent;
@@ -339,12 +354,10 @@ function usePollLifeline() {
             remainingPercent -= percent;
         }
     });
-
-    // Buat diagram batang
-    pollChartContainer.innerHTML = ""; // Kosongkan diagram lama
-    
-    // Urutkan A, B, C, D, E...
+    pollChartContainer.innerHTML = ""; 
+    const barElements = [];
     const sortedOptions = [];
+    
     optionButtons.forEach(btn => {
         if (!btn.classList.contains('disabled')) {
             const answer = btn.dataset.answer;
@@ -357,80 +370,100 @@ function usePollLifeline() {
         }
     });
 
-    // Tampilkan di modal
     sortedOptions.forEach(opt => {
         const barWrapper = document.createElement('div');
         barWrapper.className = 'poll-bar-wrapper';
-        
         const bar = document.createElement('div');
         bar.className = 'poll-bar';
-        // set 'height' setelah elemen ada di DOM
-        setTimeout(() => { bar.style.height = `${opt.percent}%`; }, 100); 
-
+        bar.style.height = '0%'; // Mulai dari 0
+        
         const label = document.createElement('div');
         label.className = 'poll-label';
         label.textContent = opt.prefix;
-
+        
         barWrapper.appendChild(bar);
         barWrapper.appendChild(label);
         pollChartContainer.appendChild(barWrapper);
+        
+        barElements.push(bar); // Simpan bar untuk dianimasikan
     });
     
     pollModal.style.display = 'flex';
+
+    // PERBAIKAN: Terapkan tinggi *setelah* modal ditampilkan
+    setTimeout(() => {
+        barElements.forEach((bar, index) => {
+            bar.style.height = `${sortedOptions[index].percent}%`;
+        });
+    }, 100); // 100ms untuk memastikan modal di-render
 }
 
-// ***** v12: Fungsi Bantuan Telepon Diperbarui *****
+// ***** v13: Perbaikan Alur Logika Telepon *****
 function usePhoneLifeline() {
     if (phoneLifelineBtn.classList.contains('used')) return;
     stopTimer();
     phoneLifelineBtn.classList.add('used');
     
-    // Reset modal ke layar dialing
-    phoneTitle.textContent = "Bantuan Telepon";
-    phoneContactGrid.classList.add('hidden');
+    // Reset modal ke layar PILIH KONTAK
+    phoneTitle.textContent = "Pilih Bantuan";
+    phoneDialingScreen.classList.add('hidden');
     phoneResponseArea.classList.add('hidden');
-    phoneDialingScreen.classList.remove('hidden');
+    phoneContactGrid.classList.remove('hidden'); // Tampilkan kontak
+    
     phoneModal.style.display = 'flex';
+}
 
-    // Mulai timer 10 detik
+function generatePhoneAnswer(contactType) {
+    // 1. Ambil nama kontak
+    let name = "Teman";
+    if (contactType === 'expert') { name = "Ahli"; }
+    else if (contactType === 'friend1') { name = "Teman 1"; }
+    else if (contactType === 'friend2') { name = "Teman 2"; }
+    else if (contactType === 'friend3') { name = "Teman 3"; }
+
+    // 2. Sembunyikan kontak, tampilkan 'dialing'
+    phoneTitle.textContent = `Menghubungi ${name}...`;
+    phoneContactGrid.classList.add('hidden');
+    phoneDialingScreen.classList.remove('hidden');
+    dialingStatus.textContent = `Menghubungi ${name}...`;
+
+    // 3. Mulai timer 10 detik
     let dialTime = 10;
     dialingTimerDisplay.textContent = dialTime;
-    clearInterval(dialInterval); // Hapus timer lama jika ada
+    clearInterval(dialInterval); 
 
     dialInterval = setInterval(() => {
         dialTime--;
         dialingTimerDisplay.textContent = dialTime;
         if (dialTime <= 0) {
+            // 4. Waktu habis, tampilkan jawaban
             clearInterval(dialInterval);
-            // Waktu habis, tampilkan pilihan kontak
             phoneDialingScreen.classList.add('hidden');
-            phoneContactGrid.classList.remove('hidden');
-            phoneTitle.textContent = "Pilih Bantuan";
+            phoneResponseArea.classList.remove('hidden');
+            
+            // 5. Generate jawaban (logika lama)
+            const correctAnswer = currentQuestions[currentQuestionIndex].a;
+            const visibleOptions = [];
+            optionButtons.forEach(btn => { if (!btn.classList.contains('disabled')) visibleOptions.push(btn.dataset.answer); });
+            const wrongOptions = visibleOptions.filter(opt => opt !== correctAnswer);
+            let finalAnswer, reliability = 0.6;
+            if (contactType === 'expert') { reliability = 0.9; }
+            if (Math.random() < reliability) finalAnswer = correctAnswer;
+            else finalAnswer = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+            
+            let optionPrefix = "";
+            optionButtons.forEach(btn => {
+                if(btn.dataset.answer === finalAnswer){
+                    optionPrefix = btn.querySelector('span').textContent;
+                }
+            });
+
+            phoneTitle.textContent = `Panggilan dari ${name}`;
+            phoneResponseText.innerHTML = `Halo? Hmm, pertanyaan yang sulit... <br>Saya tidak 100% yakin, tapi saya rasa jawabannya adalah <strong>${optionPrefix} ${finalAnswer}</strong>.`;
         }
     }, 1000);
 }
-function generatePhoneAnswer(contactType) {
-    const correctAnswer = currentQuestions[currentQuestionIndex].a;
-    const visibleOptions = [];
-    optionButtons.forEach(btn => { if (!btn.classList.contains('disabled')) visibleOptions.push(btn.dataset.answer); });
-    const wrongOptions = visibleOptions.filter(opt => opt !== correctAnswer);
-    let finalAnswer, reliability = 0.6, name = "Teman";
-    if (contactType === 'expert') { reliability = 0.9; name = "Ahli"; }
-    if (Math.random() < reliability) finalAnswer = correctAnswer;
-    else finalAnswer = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
-    
-    let optionPrefix = "";
-    optionButtons.forEach(btn => {
-        if(btn.dataset.answer === finalAnswer){
-            optionPrefix = btn.querySelector('span').textContent;
-        }
-    });
 
-    phoneTitle.textContent = `Panggilan ke ${name}...`;
-    phoneContactGrid.classList.add('hidden');
-    phoneResponseArea.classList.remove('hidden');
-    phoneResponseText.innerHTML = `Halo? Hmm, pertanyaan yang sulit... <br>Saya tidak 100% yakin, tapi saya rasa jawabannya adalah <strong>${optionPrefix} ${finalAnswer}</strong>.`;
-}
 function useFiftyFifty() {
     if (fiftyLifelineBtn.classList.contains('used')) return;
     fiftyLifelineBtn.classList.add('used');
@@ -439,7 +472,10 @@ function useFiftyFifty() {
     optionButtons.forEach(btn => { if (btn.dataset.answer !== correctAnswer) wrongOptions.push(btn); });
     shuffleArray(wrongOptions);
     wrongOptions[0].classList.add('disabled');
-    wrongOptions[1].classList.add('disabled');
+    // Pastikan tidak error jika hanya ada 1 opsi salah (misal setelah 50/50 + poll)
+    if (wrongOptions.length > 1) {
+        wrongOptions[1].classList.add('disabled');
+    }
 }
 
 // --- Fungsi Host (Kustom) ---
@@ -483,17 +519,24 @@ async function generateCustomGame() {
 // --- Fungsi Helper (Utility) ---
 function parseCSV(csvData) {
     const questions = [];
-    const lines = csvData.split(/\r?\n/);
-    for (let i = 1; i < lines.length; i++) {
+    const lines = csvData.split(/\r?\n/); // Memisahkan baris
+    for (let i = 1; i < lines.length; i++) { // Mulai dari 1 untuk lewati header
         const line = lines[i];
         if (!line) continue;
+        
+        // CSV sederhana, split dengan koma
+        // Hati-hati: Ini akan rusak jika ada koma di dalam pertanyaan/opsi.
+        // Kita berasumsi koma HANYA pemisah
         const parts = line.split(','); 
+        
         if (parts.length >= 4) {
+            // .replace(/"/g, '') untuk membersihkan tanda kutip
             const q = parts[0].trim().replace(/"/g, '');
             const o = parts[1].trim().replace(/"/g, ''); 
             const a = parts[2].trim().replace(/"/g, '');
             const difficulty = parseInt(parts[3].trim().replace(/"/g, ''), 10);
-            if (q && o && a && difficulty) {
+            
+            if (q && o && a && !isNaN(difficulty)) {
                 questions.push({ q, o, a, difficulty });
             }
         }
@@ -501,7 +544,6 @@ function parseCSV(csvData) {
     return questions;
 }
 
-// ***** v12: Fungsi showQuestion Diperbarui (Membuat Opsi Dinamis) *****
 function showQuestion() {
     resetState();
     const questionData = currentQuestions[currentQuestionIndex];
@@ -535,7 +577,7 @@ function showQuestion() {
     startTimer(60);
 }
 function parseOptions(optionsString) {
-    return optionsString.split('\\'); 
+    return optionsString.split('\\'); // Pemisah backslash
 }
 function processAnswer() {
     confirmModal.style.display = 'none';
@@ -561,10 +603,12 @@ function processAnswer() {
         wrongAudio.play();
         optionButtons.forEach(btn => { if (btn.dataset.answer === correctAnswer) btn.classList.add('correct'); });
         currentScoreValue = 0;
-        if (currentQuestionIndex > 9) currentScoreValue = prizeLadderValues[9];
-        else if (currentQuestionIndex > 4) currentScoreValue = prizeLadderValues[4];
+        if (currentQuestionIndex > 9) currentScoreValue = prizeLadderValues[9]; // Skor aman 32jt
+        else if (currentQuestionIndex > 4) currentScoreValue = prizeLadderValues[4]; // Skor aman 1jt
+        
         if (currentScoreValue === 0) currentScore = "Rp 0";
         else currentScore = prizeLadderDisplay[prizeLadderValues.indexOf(currentScoreValue)];
+        
         setTimeout(gameOver, 2000);
     }
 }
@@ -625,7 +669,7 @@ function shuffleArray(array) {
 }
 function buildPrizeLadder() {
     prizeLadderList.innerHTML = "";
-    const safePoints = [4, 9, 14];
+    const safePoints = [4, 9, 14]; // Index 4 (soal ke-5), 9 (soal ke-10), 14 (soal ke-15)
     prizeLadderDisplay.forEach((prize, index) => {
         const li = document.createElement('li');
         li.textContent = `${index + 1}. ${prize}`;
