@@ -42,10 +42,11 @@ let currentScore = "Rp 0";
 let currentScoreValue = 0;
 let timer;
 let timerInterval;
+let dialInterval; // Timer untuk simulasi telepon
 let selectedOption = null;
+let optionButtons = []; // ***** v12: Diubah menjadi array kosong
 
 // --- Elemen DOM ---
-// Mengambil semua elemen dari HTML. Ini harus cocok 100%
 const startScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
 const startBtn = document.getElementById('start-game-btn');
@@ -54,7 +55,7 @@ const faseSelect = document.getElementById('fase-select');
 const faseSelectContainer = document.getElementById('fase-select-container');
 const questionText = document.getElementById('question-text');
 const optionsContainer = document.getElementById('options-container');
-const optionButtons = document.querySelectorAll('.option'); 
+// 'optionButtons' sekarang di-query secara dinamis
 const timerDisplay = document.getElementById('timer');
 const prizeLadderList = document.getElementById('prize-ladder');
 const confirmModal = document.getElementById('confirm-modal');
@@ -81,6 +82,8 @@ const closeShareModalBtn = document.getElementById('close-share-modal-btn');
 const phoneLifelineBtn = document.getElementById('lifeline-phone');
 const phoneModal = document.getElementById('phone-modal');
 const phoneTitle = document.getElementById('phone-title');
+const phoneDialingScreen = document.getElementById('phone-dialing-screen');
+const dialingTimerDisplay = document.getElementById('dialing-timer');
 const phoneContactGrid = document.getElementById('phone-contact-grid');
 const phoneResponseArea = document.getElementById('phone-response-area');
 const phoneResponseText = document.getElementById('phone-response-text');
@@ -95,25 +98,23 @@ const scoreTableBody = document.getElementById('score-table-body');
 const closeScoreViewBtn = document.getElementById('close-score-view-btn');
 const exportExcelBtn = document.getElementById('export-excel-btn'); 
 
+// ***** v12: Elemen DOM untuk Modal Statistik BARU *****
+const pollModal = document.getElementById('poll-modal');
+const pollChartContainer = document.getElementById('poll-chart-container');
+const closePollModalBtn = document.getElementById('close-poll-modal-btn');
+
 // --- Pengecekan URL (Dijalankan saat halaman dimuat) ---
 window.addEventListener('DOMContentLoaded', checkURLHash);
 async function checkURLHash() {
     const hash = window.location.hash.substring(1);
-    
-    // Ini adalah jawaban untuk permintaan Anda:
-    // Jika ada HASH (link kustom), kita sembunyikan semua elemen Host & Fase
     if (hash) {
         customGameId = hash;
-        customGameInfo.classList.remove('hidden'); // Tampilkan info kuis kustom
-        
-        // Sembunyikan semua yang tidak perlu
+        customGameInfo.classList.remove('hidden'); 
         faseSelectContainer.classList.add('hidden');
         hostControls.classList.add('hidden');
         document.getElementById('host-separator').classList.add('hidden');
         document.querySelector('.host-hr').classList.add('hidden');
         document.getElementById('view-scores-controls').classList.add('hidden');
-
-        // Memuat soal kustom
         try {
             const docRef = doc(db, "custom_games", customGameId);
             const docSnap = await getDoc(docRef);
@@ -169,9 +170,8 @@ phoneContactGrid.addEventListener('click', (e) => {
 });
 closePhoneModalBtn.addEventListener('click', () => {
     phoneModal.style.display = 'none';
-    if(gameScreen.classList.contains('active')) { // Hanya mulai timer jika di layar game
-        startTimer(parseInt(timerDisplay.textContent));
-    }
+    clearInterval(dialInterval); // Pastikan timer dial berhenti
+    startTimer(parseInt(timerDisplay.textContent));
 });
 fiftyLifelineBtn.addEventListener('click', useFiftyFifty);
 viewScoresBtn.addEventListener('click', viewCustomScores);
@@ -179,9 +179,12 @@ closeScoreViewBtn.addEventListener('click', () => {
     scoreViewModal.style.display = 'none';
 });
 exportExcelBtn.addEventListener('click', exportScoresToExcel); 
-
-// ***** PERBAIKAN BUG v10: Menambahkan kembali listener untuk tombol poll *****
 pollLifelineBtn.addEventListener('click', usePollLifeline); 
+// ***** v12: Listener untuk tombol tutup modal statistik *****
+closePollModalBtn.addEventListener('click', () => {
+    pollModal.style.display = 'none';
+    startTimer(parseInt(timerDisplay.textContent));
+});
 
 // --- Fungsi Lihat Hasil Kuis (v6) ---
 async function viewCustomScores() {
@@ -302,7 +305,7 @@ function sortQuestionsByDifficulty(allQuestions) {
 
 // --- Fungsi Bantuan (Lifelines) ---
 
-// ***** PERBAIKAN BUG v10: Menambahkan fungsi usePollLifeline() yang hilang *****
+// ***** v12: Fungsi Bantuan Statistik Diperbarui *****
 function usePollLifeline() {
     if (pollLifelineBtn.classList.contains('used')) return;
     stopTimer();
@@ -337,36 +340,74 @@ function usePollLifeline() {
         }
     });
 
-    // Format tampilan
-    let responseHTML = "Hasil Polling Penonton:<br><br>";
-    Object.keys(pollResults).sort().forEach(key => {
-        let optionPrefix = "";
-        optionButtons.forEach(btn => {
-            if(btn.dataset.answer === key){
-                // Ambil 'A:', 'B:', 'C:', atau 'D:'
-                optionPrefix = btn.querySelector('span').textContent;
-            }
-        });
-        responseHTML += `<div style="margin-bottom: 5px;"><strong>${optionPrefix}</strong> ${pollResults[key]}%</div>`;
+    // Buat diagram batang
+    pollChartContainer.innerHTML = ""; // Kosongkan diagram lama
+    
+    // Urutkan A, B, C, D, E...
+    const sortedOptions = [];
+    optionButtons.forEach(btn => {
+        if (!btn.classList.contains('disabled')) {
+            const answer = btn.dataset.answer;
+            const prefix = btn.querySelector('span').textContent.replace(':', '');
+            sortedOptions.push({
+                answer: answer,
+                prefix: prefix,
+                percent: pollResults[answer] || 0
+            });
+        }
     });
 
-    // Tampilkan di modal Bantuan Telepon (kita pakai ulang)
-    phoneTitle.textContent = "Hasil Polling";
-    phoneContactGrid.classList.add('hidden');
-    phoneResponseArea.classList.remove('hidden');
-    phoneResponseText.innerHTML = responseHTML;
-    phoneModal.style.display = 'flex';
+    // Tampilkan di modal
+    sortedOptions.forEach(opt => {
+        const barWrapper = document.createElement('div');
+        barWrapper.className = 'poll-bar-wrapper';
+        
+        const bar = document.createElement('div');
+        bar.className = 'poll-bar';
+        // set 'height' setelah elemen ada di DOM
+        setTimeout(() => { bar.style.height = `${opt.percent}%`; }, 100); 
+
+        const label = document.createElement('div');
+        label.className = 'poll-label';
+        label.textContent = opt.prefix;
+
+        barWrapper.appendChild(bar);
+        barWrapper.appendChild(label);
+        pollChartContainer.appendChild(barWrapper);
+    });
+    
+    pollModal.style.display = 'flex';
 }
 
+// ***** v12: Fungsi Bantuan Telepon Diperbarui *****
 function usePhoneLifeline() {
     if (phoneLifelineBtn.classList.contains('used')) return;
     stopTimer();
     phoneLifelineBtn.classList.add('used');
-    phoneTitle.textContent = "Pilih Bantuan";
-    phoneContactGrid.classList.remove('hidden');
+    
+    // Reset modal ke layar dialing
+    phoneTitle.textContent = "Bantuan Telepon";
+    phoneContactGrid.classList.add('hidden');
     phoneResponseArea.classList.add('hidden');
-    phoneResponseText.innerHTML = "";
+    phoneDialingScreen.classList.remove('hidden');
     phoneModal.style.display = 'flex';
+
+    // Mulai timer 10 detik
+    let dialTime = 10;
+    dialingTimerDisplay.textContent = dialTime;
+    clearInterval(dialInterval); // Hapus timer lama jika ada
+
+    dialInterval = setInterval(() => {
+        dialTime--;
+        dialingTimerDisplay.textContent = dialTime;
+        if (dialTime <= 0) {
+            clearInterval(dialInterval);
+            // Waktu habis, tampilkan pilihan kontak
+            phoneDialingScreen.classList.add('hidden');
+            phoneContactGrid.classList.remove('hidden');
+            phoneTitle.textContent = "Pilih Bantuan";
+        }
+    }, 1000);
 }
 function generatePhoneAnswer(contactType) {
     const correctAnswer = currentQuestions[currentQuestionIndex].a;
@@ -446,10 +487,8 @@ function parseCSV(csvData) {
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i];
         if (!line) continue;
-        // Membelah CSV dengan koma, tapi hati-hati dengan koma di dalam tanda kutip (meski kita hindari)
         const parts = line.split(','); 
         if (parts.length >= 4) {
-            // Bersihkan setiap bagian dari tanda kutip
             const q = parts[0].trim().replace(/"/g, '');
             const o = parts[1].trim().replace(/"/g, ''); 
             const a = parts[2].trim().replace(/"/g, '');
@@ -461,19 +500,37 @@ function parseCSV(csvData) {
     }
     return questions;
 }
+
+// ***** v12: Fungsi showQuestion Diperbarui (Membuat Opsi Dinamis) *****
 function showQuestion() {
     resetState();
     const questionData = currentQuestions[currentQuestionIndex];
     questionText.textContent = questionData.q;
+    
     let options = parseOptions(questionData.o);
     options = shuffleArray(options);
-    optionButtons.forEach((btn, index) => {
-        // Ambil prefix A:, B:, C:, D: dari HTML
-        const prefix = btn.querySelector('span').textContent; 
+    
+    optionsContainer.innerHTML = ""; // Kosongkan opsi lama
+    
+    // Buat elemen opsi baru
+    options.forEach((optionText, index) => {
+        const prefix = String.fromCharCode(65 + index); // A, B, C, D, E...
         
-        btn.querySelector('p').textContent = options[index];
-        btn.dataset.answer = options[index]; 
+        const optionEl = document.createElement('div');
+        optionEl.className = 'option';
+        optionEl.dataset.answer = optionText;
+        
+        optionEl.innerHTML = `
+            <span>${prefix}:</span>
+            <p>${optionText}</p>
+        `;
+        
+        optionsContainer.appendChild(optionEl);
     });
+
+    // Query ulang 'optionButtons' setelah dibuat
+    optionButtons = document.querySelectorAll('.option');
+
     updatePrizeLadder();
     startTimer(60);
 }
@@ -552,6 +609,7 @@ function startTimer(duration) {
 }
 function stopTimer() { clearInterval(timerInterval); }
 function resetState() {
+    // 'optionButtons' sekarang di-query ulang di showQuestion
     optionButtons.forEach(btn => {
         btn.classList.remove('selected', 'correct', 'wrong', 'disabled');
     });
@@ -592,7 +650,6 @@ async function saveScore(name, scoreValue) {
             skor: scoreValue,
             tanggal: serverTimestamp()
         });
-        // ***** PERBAIKAN BUG v10: Memperbaiki typo 'leaderbandCollection' *****
         await showLeaderboard(leaderboardCollection);
     } catch (error) {
         console.error("Error Gagal menyimpan skor: ", error);
