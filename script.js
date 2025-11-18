@@ -17,7 +17,7 @@ try {
     db = getFirestore(app);
 } catch (e) { console.error("Firebase Init Error:", e); }
 
-// --- LOGIKA HADIAH DINAMIS & DEVICE ---
+// --- LOGIKA HADIAH & DEVICE ---
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
 
@@ -120,7 +120,7 @@ async function startGame() {
     getEl('start-game-btn').disabled = true;
     getEl('start-game-btn').textContent = "Memuat...";
 
-    // --- LOGIKA DEVICE & HADIAH ---
+    // --- DEVICE DETECTION ---
     if (window.innerWidth <= 768) {
         deviceType = "HP";
         currentLadderValues = prizeLadderValues_Mobile;
@@ -130,7 +130,6 @@ async function startGame() {
         currentLadderValues = prizeLadderValues_Full;
         currentLadderDisplay = prizeLadderDisplay_Full;
     }
-    // -----------------------------
     
     if (!customGameId) {
         const fase = getEl('fase-select').value;
@@ -171,7 +170,7 @@ function showQuestion() {
     container.innerHTML = "";
     
     let opts = q.o.split('\\');
-    opts = shuffleArray(opts); // Gunakan shuffleArray yang lebih baik
+    opts = shuffleArray(opts);
     
     opts.forEach((txt, idx) => {
         const char = String.fromCharCode(65 + idx);
@@ -216,7 +215,7 @@ function processAnswer() {
 function winGame() {
     alert(`SELAMAT! Anda menang ${currentLadderDisplay[14]}`); 
     saveScore(playerName, currentScore);
-    setTimeout(resetGame, 2000); // Beri jeda sebelum refresh
+    setTimeout(resetGame, 2000);
 }
 
 function loseGame() {
@@ -226,12 +225,11 @@ function loseGame() {
     
     alert(`Game Over! Anda membawa pulang: Rp ${finalScore.toLocaleString('id-ID')}`);
     saveScore(playerName, finalScore);
-    setTimeout(resetGame, 2000); // Beri jeda sebelum refresh
+    setTimeout(resetGame, 2000);
 }
 
-// --- PERUBAHAN v22: REFRESH TOTAL ---
+// --- PERBAIKAN v22: Auto Refresh ---
 function resetGame() {
-    // Refresh halaman secara paksa agar memori dan pengacakan bersih total
     window.location.reload();
 }
 
@@ -452,9 +450,8 @@ async function viewCustomScores() {
         tbody.innerHTML = "";
         snap.forEach((d, i) => {
             const data = d.data();
-            // Format tanggal
             const date = data.tanggal ? data.tanggal.toDate().toLocaleDateString('id-ID') : '-';
-            // Tambahkan kolom Device
+            // Tampilkan kolom Device
             tbody.innerHTML += `<tr>
                 <td>${i+1}</td>
                 <td>${data.nama}</td>
@@ -467,12 +464,16 @@ async function viewCustomScores() {
     } catch(e) { alert("Gagal ambil skor."); }
 }
 
+// --- PERBAIKAN v23: Akses window.XLSX ---
 function exportScoresToExcel() {
-    const wb = XLSX.utils.table_to_book(getEl('score-table'));
-    XLSX.writeFile(wb, "Leaderboard.xlsx");
+    if (!window.XLSX) return alert("Library Excel belum siap. Refresh halaman.");
+    
+    const table = document.getElementById('score-table');
+    const wb = window.XLSX.utils.table_to_book(table, {sheet: "Leaderboard"});
+    const quizId = getEl('view-quiz-id-input').value.split('#').pop().trim() || "leaderboard";
+    window.XLSX.writeFile(wb, `Skor_${quizId}.xlsx`);
 }
 
-// --- PERUBAHAN v22: SIMPAN INFO DEVICE ---
 async function saveScore(name, scoreValue) {
     console.log(`Menyimpan skor: ${name} - ${scoreValue} - ${deviceType}`);
     try {
@@ -480,7 +481,7 @@ async function saveScore(name, scoreValue) {
         await addDoc(collection(db, leaderboardCollection), {
             nama: name,
             skor: scoreValue,
-            device: deviceType, // Simpan info HP/PC
+            device: deviceType, // Simpan Device
             tanggal: serverTimestamp()
         });
     } catch (error) {
