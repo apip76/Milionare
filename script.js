@@ -17,14 +17,25 @@ try {
     db = getFirestore(app);
 } catch (e) { console.error("Firebase Init Error:", e); }
 
-const prizeLadderValues = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
-const prizeLadderDisplay = prizeLadderValues.map(v => "Rp " + v.toLocaleString('id-ID'));
+// --- LOGIKA HADIAH DINAMIS (v19) ---
+// Set Hadiah Penuh (PC/Tablet)
+const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
+const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
+
+// Set Hadiah HP (Disederhanakan)
+const prizeLadderValues_Mobile = [50, 125, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
+const prizeLadderDisplay_Mobile = prizeLadderValues_Mobile.map(v => "Rp " + v.toLocaleString('id-ID'));
+
+// Variabel untuk menyimpan set hadiah yang sedang aktif
+let currentLadderValues = [];
+let currentLadderDisplay = [];
 
 let playerName = "", currentQuestions = [], currentQuestionIndex = 0, currentScore = 0;
 let timerInterval, dialInterval, customGameId = null, selectedOption = null;
 
 const getEl = (id) => document.getElementById(id);
 
+// --- MAIN INIT ---
 window.addEventListener('DOMContentLoaded', () => {
     checkURLHash();
     setupEventListeners();
@@ -110,6 +121,17 @@ async function startGame() {
     
     getEl('start-game-btn').disabled = true;
     getEl('start-game-btn').textContent = "Memuat...";
+
+    // --- LOGIKA DINAMIS v19 ---
+    // Cek lebar layar (768px adalah breakpoint di CSS)
+    if (window.innerWidth <= 768) {
+        currentLadderValues = prizeLadderValues_Mobile;
+        currentLadderDisplay = prizeLadderDisplay_Mobile;
+    } else {
+        currentLadderValues = prizeLadderValues_Full;
+        currentLadderDisplay = prizeLadderDisplay_Full;
+    }
+    // -------------------------
     
     if (!customGameId) {
         const fase = getEl('fase-select').value;
@@ -138,22 +160,8 @@ async function startGame() {
     getEl('opening-audio').play();
     setTimeout(() => getEl('bg-audio').play(), 3000);
     
-    updateScoreDisplay(); // Ganti buildLadder dengan ini
+    buildLadder(); // Panggil fungsi yang membuat tangga hadiah
     showQuestion();
-}
-
-// FUNGSI BARU v18: Update Tampilan Skor Atas
-function updateScoreDisplay() {
-    // Skor Saat Ini
-    const currentTxt = currentScore === 0 ? "Rp 0" : "Rp " + currentScore.toLocaleString('id-ID');
-    getEl('current-score-display').textContent = currentTxt;
-
-    // Skor Menuju (Target)
-    let targetTxt = "MAX";
-    if (currentQuestionIndex < prizeLadderValues.length) {
-        targetTxt = "Rp " + prizeLadderValues[currentQuestionIndex].toLocaleString('id-ID');
-    }
-    getEl('target-score-display').textContent = targetTxt;
 }
 
 function showQuestion() {
@@ -175,7 +183,7 @@ function showQuestion() {
         container.appendChild(div);
     });
     
-    updateScoreDisplay(); // Update tampilan skor tiap soal baru
+    updateLadder(); // Update highlight tangga hadiah
     startTimer();
 }
 
@@ -191,7 +199,7 @@ function processAnswer() {
     if(ans === correct) {
         selectedOption.classList.add('correct');
         getEl('correct-audio').play();
-        currentScore = prizeLadderValues[currentQuestionIndex];
+        currentScore = currentLadderValues[currentQuestionIndex]; // Gunakan ladder dinamis
         currentQuestionIndex++;
         
         if(currentQuestionIndex >= 15) winGame();
@@ -207,17 +215,18 @@ function processAnswer() {
 }
 
 function winGame() {
-    alert(`SELAMAT! Anda menang ${prizeLadderDisplay[14]}`);
+    alert(`SELAMAT! Anda menang ${currentLadderDisplay[14]}`); // Tampilan dinamis
     saveScore(playerName, currentScore);
     resetGame();
 }
 
 function loseGame() {
     let finalScore = 0;
-    if(currentQuestionIndex >= 10) finalScore = prizeLadderValues[9];
-    else if(currentQuestionIndex >= 5) finalScore = prizeLadderValues[4];
+    // Gunakan ladder dinamis untuk cek safety net
+    if(currentQuestionIndex >= 10) finalScore = currentLadderValues[9];
+    else if(currentQuestionIndex >= 5) finalScore = currentLadderValues[4];
     
-    alert(`Game Over! Anda membawa pulang: Rp ${finalScore.toLocaleString()}`);
+    alert(`Game Over! Anda membawa pulang: Rp ${finalScore.toLocaleString('id-ID')}`);
     saveScore(playerName, finalScore);
     resetGame();
 }
@@ -231,7 +240,7 @@ function resetGame() {
     getEl('start-game-btn').textContent = "Mulai Bermain";
 }
 
-// --- LIFELINES ---
+// --- LIFELINES (v16 - Perbaikan Waktu Animasi) ---
 
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
@@ -253,28 +262,35 @@ function usePollLifeline() {
     const container = getEl('poll-chart-container');
     container.innerHTML = "";
     
+    let results = [];
     opts.forEach(o => {
         let p = 0;
-        if(o === correctOpt) p = correctPercent;
-        else {
+        if(o === correctOpt) {
+            p = correctPercent;
+        } else {
             const chunk = Math.floor(Math.random() * remain);
             p = chunk;
             remain -= chunk;
         }
-        
         const prefix = o.querySelector('span').textContent.replace(':', '');
+        results.push({ prefix: prefix, percent: p });
+    });
+
+    results.forEach(res => {
         const wrapper = document.createElement('div');
         wrapper.className = 'poll-bar-wrapper';
         wrapper.innerHTML = `
-            <div class="poll-bar" style="height: 0%;" data-percent="${p}"></div>
-            <div class="poll-label">${prefix}<br><small>${p}%</small></div>
+            <div class="poll-bar" style="height: 0%;" data-percent="${res.percent}"></div>
+            <div class="poll-label">${res.prefix}<br><small>${res.percent}%</small></div>
         `;
         container.appendChild(wrapper);
-
-        setTimeout(() => {
-            wrapper.querySelector('.poll-bar').style.height = p + "%";
-        }, 100);
     });
+
+    setTimeout(() => {
+        container.querySelectorAll('.poll-bar').forEach(bar => {
+            bar.style.height = bar.dataset.percent + "%";
+        });
+    }, 100); 
 }
 
 function usePhoneLifeline() {
@@ -385,6 +401,29 @@ function parseCSV(text) {
             difficulty: parseInt(parts[3])
         };
     }).filter(x => x);
+}
+
+// FUNGSI KEMBALI (v19): Membangun tangga hadiah
+function buildLadder() {
+    const ul = getEl('prize-ladder');
+    ul.innerHTML = "";
+    const safePoints = [4, 9, 14]; // Index 4, 9, 14
+    
+    // Gunakan display dinamis
+    currentLadderDisplay.forEach((p, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${i+1}. ${p}`;
+        li.dataset.level = i;
+        if(safePoints.includes(i)) li.classList.add('safe');
+        ul.appendChild(li);
+    });
+}
+// FUNGSI KEMBALI (v19): Update highlight tangga hadiah
+function updateLadder() {
+    document.querySelectorAll('#prize-ladder li').forEach((li, i) => {
+        if(i === currentQuestionIndex) li.classList.add('current');
+        else li.classList.remove('current');
+    });
 }
 
 async function generateCustomGame() {
