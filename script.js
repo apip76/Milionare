@@ -17,16 +17,13 @@ try {
     db = getFirestore(app);
 } catch (e) { console.error("Firebase Init Error:", e); }
 
-// --- LOGIKA HADIAH DINAMIS (v19) ---
-// Set Hadiah Penuh (PC/Tablet)
+// --- LOGIKA HADIAH DINAMIS ---
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
 
-// Set Hadiah HP (Disederhanakan - Puncak 1 Juta)
 const prizeLadderValues_Mobile = [50, 125, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
 const prizeLadderDisplay_Mobile = prizeLadderValues_Mobile.map(v => "Rp " + v.toLocaleString('id-ID'));
 
-// Variabel untuk menyimpan set hadiah yang sedang aktif
 let currentLadderValues = [];
 let currentLadderDisplay = [];
 
@@ -122,18 +119,13 @@ async function startGame() {
     getEl('start-game-btn').disabled = true;
     getEl('start-game-btn').textContent = "Memuat...";
 
-    // --- LOGIKA DINAMIS v19 ---
-    // Cek lebar layar (768px adalah breakpoint di CSS)
     if (window.innerWidth <= 768) {
-        console.log("Mode HP terdeteksi. Menggunakan hadiah 1 Juta.");
         currentLadderValues = prizeLadderValues_Mobile;
         currentLadderDisplay = prizeLadderDisplay_Mobile;
     } else {
-        console.log("Mode PC terdeteksi. Menggunakan hadiah 1 Milyar.");
         currentLadderValues = prizeLadderValues_Full;
         currentLadderDisplay = prizeLadderDisplay_Full;
     }
-    // -------------------------
     
     if (!customGameId) {
         const fase = getEl('fase-select').value;
@@ -162,7 +154,7 @@ async function startGame() {
     getEl('opening-audio').play();
     setTimeout(() => getEl('bg-audio').play(), 3000);
     
-    buildLadder(); // Panggil fungsi yang membuat tangga hadiah
+    buildLadder(); 
     showQuestion();
 }
 
@@ -174,7 +166,8 @@ function showQuestion() {
     container.innerHTML = "";
     
     let opts = q.o.split('\\');
-    opts = opts.sort(() => Math.random() - 0.5);
+    // Acak opsi menggunakan Fisher-Yates juga
+    opts = shuffleArray(opts);
     
     opts.forEach((txt, idx) => {
         const char = String.fromCharCode(65 + idx);
@@ -185,7 +178,7 @@ function showQuestion() {
         container.appendChild(div);
     });
     
-    updateLadder(); // Update highlight tangga hadiah
+    updateLadder(); 
     startTimer();
 }
 
@@ -201,7 +194,7 @@ function processAnswer() {
     if(ans === correct) {
         selectedOption.classList.add('correct');
         getEl('correct-audio').play();
-        currentScore = currentLadderValues[currentQuestionIndex]; // Gunakan ladder dinamis
+        currentScore = currentLadderValues[currentQuestionIndex]; 
         currentQuestionIndex++;
         
         if(currentQuestionIndex >= 15) winGame();
@@ -217,14 +210,13 @@ function processAnswer() {
 }
 
 function winGame() {
-    alert(`SELAMAT! Anda menang ${currentLadderDisplay[14]}`); // Tampilan dinamis
+    alert(`SELAMAT! Anda menang ${currentLadderDisplay[14]}`); 
     saveScore(playerName, currentScore);
     resetGame();
 }
 
 function loseGame() {
     let finalScore = 0;
-    // Gunakan ladder dinamis untuk cek safety net
     if(currentQuestionIndex >= 10) finalScore = currentLadderValues[9];
     else if(currentQuestionIndex >= 5) finalScore = currentLadderValues[4];
     
@@ -242,7 +234,7 @@ function resetGame() {
     getEl('start-game-btn').textContent = "Mulai Bermain";
 }
 
-// --- LIFELINES (v16 - Perbaikan Waktu Animasi) ---
+// --- LIFELINES ---
 
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
@@ -250,7 +242,6 @@ function usePollLifeline() {
     btn.classList.add('used');
     stopTimer();
 
-    // 1. TAMPILKAN MODAL DULU
     getEl('poll-modal').style.display = 'flex';
     
     const q = currentQuestions[currentQuestionIndex];
@@ -289,7 +280,6 @@ function usePollLifeline() {
         container.appendChild(wrapper);
     });
 
-    // Animasikan setelah modal terlihat
     setTimeout(() => {
         container.querySelectorAll('.poll-bar').forEach(bar => {
             bar.style.height = bar.dataset.percent + "%";
@@ -382,15 +372,28 @@ function startTimer(val = 60) {
 }
 function stopTimer() { clearInterval(timerInterval); }
 
+// --- PERBAIKAN: ALGORITMA PENGACAKAN (Fisher-Yates) ---
+// Menggantikan .sort(random - 0.5) yang bias
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 function sortQuestionsByDifficulty(allQ) {
     const easy = allQ.filter(x => x.difficulty == 1);
     const med = allQ.filter(x => x.difficulty == 2);
     const hard = allQ.filter(x => x.difficulty == 3);
-    easy.sort(() => Math.random() - 0.5);
-    med.sort(() => Math.random() - 0.5);
-    hard.sort(() => Math.random() - 0.5);
-    if(easy.length < 5 || med.length < 5 || hard.length < 5) return [];
-    return [...easy.slice(0,5), ...med.slice(0,5), ...hard.slice(0,5)];
+    
+    // Gunakan shuffleArray, bukan sort random
+    const shuffledEasy = shuffleArray([...easy]);
+    const shuffledMed = shuffleArray([...med]);
+    const shuffledHard = shuffleArray([...hard]);
+    
+    if(shuffledEasy.length < 5 || shuffledMed.length < 5 || shuffledHard.length < 5) return [];
+    return [...shuffledEasy.slice(0,5), ...shuffledMed.slice(0,5), ...shuffledHard.slice(0,5)];
 }
 
 function parseCSV(text) {
@@ -407,13 +410,10 @@ function parseCSV(text) {
     }).filter(x => x);
 }
 
-// FUNGSI KEMBALI (v19): Membangun tangga hadiah
 function buildLadder() {
     const ul = getEl('prize-ladder');
     ul.innerHTML = "";
-    const safePoints = [4, 9, 14]; // Index 4, 9, 14
-    
-    // Gunakan display dinamis
+    const safePoints = [4, 9, 14]; 
     currentLadderDisplay.forEach((p, i) => {
         const li = document.createElement('li');
         li.textContent = `${i+1}. ${p}`;
@@ -422,7 +422,7 @@ function buildLadder() {
         ul.appendChild(li);
     });
 }
-// FUNGSI KEMBALI (v19): Update highlight tangga hadiah
+
 function updateLadder() {
     document.querySelectorAll('#prize-ladder li').forEach((li, i) => {
         if(i === currentQuestionIndex) li.classList.add('current');
