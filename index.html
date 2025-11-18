@@ -13,10 +13,12 @@
     <div id="start-screen" class="screen active">
         <div class="start-box">
             <img src="logo.png" alt="Logo Kuis" class="logo-spinning" onerror="this.onerror=null; this.src='https://placehold.co/150x150/0c0c2c/ffc107?text=LOGO';">
+            
             <div id="custom-game-info" class="hidden">
                 <h3>Mode Kuis Kustom</h3>
                 <p id="custom-game-status">Memuat soal...</p>
             </div>
+            
             <div id="player-controls">
                 <h2>Mulai Bermain</h2>
                 <input type="text" id="player-name-input" placeholder="Masukkan nama Anda">
@@ -32,6 +34,7 @@
                 </div>
                 <button id="start-game-btn">Mulai Bermain</button>
             </div>
+
             <div id="host-section-container">
                 <hr id="host-separator">
                 <div id="host-controls">
@@ -44,6 +47,7 @@
                     </div>
                 </div>
             </div>
+            
             <div id="score-section-container">
                 <hr class="host-hr">
                 <div id="view-scores-controls">
@@ -53,6 +57,7 @@
                     <button id="view-scores-btn">Tampilkan Skor</button>
                 </div>
             </div>
+
             <!-- Modals -->
             <div id="how-to-modal" class="modal-overlay"><div class="modal-content-small"><h3>Cara Membuat Link CSV</h3><ol><li>Buka Google Sheet.</li><li>Buat 4 kolom: <strong>q</strong>, <strong>o</strong>, <strong>a</strong>, <strong>difficulty</strong>.</li><li>Isi soal.</li><li>File > Bagikan > Publikasikan ke web > CSV.</li></ol><button id="close-modal-btn">Mengerti</button></div></div>
             <div id="share-link-modal" class="modal-overlay"><div class="modal-content-small"><h3>Link Kuis Siap!</h3><input type="text" id="shareable-link-input" readonly><button id="copy-link-btn">Salin Link</button><button id="close-share-modal-btn">Tutup</button></div></div>
