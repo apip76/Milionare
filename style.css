@@ -94,20 +94,21 @@ button:active { transform: scale(0.98); }
 #close-poll-modal-btn, #close-phone-modal-btn, #close-score-view-btn, #close-share-modal-btn { background: #f44336; margin-top: 10px; }
 #export-excel-btn { background: #217346; }
 
-/* PERBAIKAN v22: Tombol Copy Link Lebih Besar */
+/* PERBAIKAN v23: Tombol Copy Link BESAR */
 #copy-link-btn { 
     background: #ff9800; 
     color: white; 
-    padding: 15px 25px; /* Padding besar */
-    font-size: 1.1rem; /* Font besar */
+    padding: 15px 20px; /* Lebih besar */
+    font-size: 1.2rem; /* Font besar */
     font-weight: bold;
     border: none; 
     border-radius: 8px; 
     cursor: pointer; 
-    width: 100%; /* Lebar penuh di modal */
+    width: 100%; /* Penuh */
     margin-bottom: 10px;
+    border: 2px solid white;
 }
-#copy-link-btn:hover { background: #f57c00; }
+#copy-link-btn:hover { background: #f57c00; transform: scale(1.02); }
 
 #phone-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 .phone-contact { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; cursor: pointer; }
