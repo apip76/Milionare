@@ -22,7 +22,7 @@ try {
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
 
-// Set Hadiah HP (Disederhanakan)
+// Set Hadiah HP (Disederhanakan - Puncak 1 Juta)
 const prizeLadderValues_Mobile = [50, 125, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
 const prizeLadderDisplay_Mobile = prizeLadderValues_Mobile.map(v => "Rp " + v.toLocaleString('id-ID'));
 
@@ -125,9 +125,11 @@ async function startGame() {
     // --- LOGIKA DINAMIS v19 ---
     // Cek lebar layar (768px adalah breakpoint di CSS)
     if (window.innerWidth <= 768) {
+        console.log("Mode HP terdeteksi. Menggunakan hadiah 1 Juta.");
         currentLadderValues = prizeLadderValues_Mobile;
         currentLadderDisplay = prizeLadderDisplay_Mobile;
     } else {
+        console.log("Mode PC terdeteksi. Menggunakan hadiah 1 Milyar.");
         currentLadderValues = prizeLadderValues_Full;
         currentLadderDisplay = prizeLadderDisplay_Full;
     }
@@ -248,6 +250,7 @@ function usePollLifeline() {
     btn.classList.add('used');
     stopTimer();
 
+    // 1. TAMPILKAN MODAL DULU
     getEl('poll-modal').style.display = 'flex';
     
     const q = currentQuestions[currentQuestionIndex];
@@ -286,6 +289,7 @@ function usePollLifeline() {
         container.appendChild(wrapper);
     });
 
+    // Animasikan setelah modal terlihat
     setTimeout(() => {
         container.querySelectorAll('.poll-bar').forEach(bar => {
             bar.style.height = bar.dataset.percent + "%";
