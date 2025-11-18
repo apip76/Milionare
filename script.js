@@ -138,8 +138,22 @@ async function startGame() {
     getEl('opening-audio').play();
     setTimeout(() => getEl('bg-audio').play(), 3000);
     
-    buildLadder();
+    updateScoreDisplay(); // Ganti buildLadder dengan ini
     showQuestion();
+}
+
+// FUNGSI BARU v18: Update Tampilan Skor Atas
+function updateScoreDisplay() {
+    // Skor Saat Ini
+    const currentTxt = currentScore === 0 ? "Rp 0" : "Rp " + currentScore.toLocaleString('id-ID');
+    getEl('current-score-display').textContent = currentTxt;
+
+    // Skor Menuju (Target)
+    let targetTxt = "MAX";
+    if (currentQuestionIndex < prizeLadderValues.length) {
+        targetTxt = "Rp " + prizeLadderValues[currentQuestionIndex].toLocaleString('id-ID');
+    }
+    getEl('target-score-display').textContent = targetTxt;
 }
 
 function showQuestion() {
@@ -161,7 +175,7 @@ function showQuestion() {
         container.appendChild(div);
     });
     
-    updateLadder();
+    updateScoreDisplay(); // Update tampilan skor tiap soal baru
     startTimer();
 }
 
@@ -217,19 +231,16 @@ function resetGame() {
     getEl('start-game-btn').textContent = "Mulai Bermain";
 }
 
-// --- LIFELINES (PERBAIKAN PENTING) ---
+// --- LIFELINES ---
 
-// 1. STATISTIK (Fixed Animation)
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
     if(btn.classList.contains('used')) return;
     btn.classList.add('used');
     stopTimer();
 
-    // 1. TAMPILKAN MODAL DULU (Agar browser tahu ukuran container)
     getEl('poll-modal').style.display = 'flex';
     
-    // 2. Kalkulasi Persentase
     const q = currentQuestions[currentQuestionIndex];
     const opts = document.querySelectorAll('.option:not(.disabled)');
     let correctOpt;
@@ -242,7 +253,6 @@ function usePollLifeline() {
     const container = getEl('poll-chart-container');
     container.innerHTML = "";
     
-    // 3. Buat Elemen Bar (Tinggi Awal 0%)
     opts.forEach(o => {
         let p = 0;
         if(o === correctOpt) p = correctPercent;
@@ -255,38 +265,24 @@ function usePollLifeline() {
         const prefix = o.querySelector('span').textContent.replace(':', '');
         const wrapper = document.createElement('div');
         wrapper.className = 'poll-bar-wrapper';
-        
-        // Buat bar dengan height 0
-        const bar = document.createElement('div');
-        bar.className = 'poll-bar';
-        bar.style.height = '0%'; 
-        
-        // Tambah label persentase agar jelas
-        bar.setAttribute('title', p + '%'); 
-
-        const label = document.createElement('div');
-        label.className = 'poll-label';
-        label.innerHTML = `${prefix}<br><small style="font-size:0.8rem">${p}%</small>`;
-        
-        wrapper.appendChild(bar);
-        wrapper.appendChild(label);
+        wrapper.innerHTML = `
+            <div class="poll-bar" style="height: 0%;" data-percent="${p}"></div>
+            <div class="poll-label">${prefix}<br><small>${p}%</small></div>
+        `;
         container.appendChild(wrapper);
 
-        // 4. Animasikan Tinggi (Dengan jeda)
         setTimeout(() => {
-            bar.style.height = p + "%";
+            wrapper.querySelector('.poll-bar').style.height = p + "%";
         }, 100);
     });
 }
 
-// 2. TELEPON (Fixed Flow: Kontak -> Dial -> Answer)
 function usePhoneLifeline() {
     const btn = getEl('lifeline-phone');
     if(btn.classList.contains('used')) return;
     btn.classList.add('used');
     stopTimer();
     
-    // Reset ke layar Kontak
     getEl('phone-contact-grid').classList.remove('hidden');
     getEl('phone-dialing-screen').classList.add('hidden');
     getEl('phone-response-area').classList.add('hidden');
@@ -294,7 +290,6 @@ function usePhoneLifeline() {
 }
 
 function generatePhoneAnswer(type) {
-    // Pindah ke layar Dialing
     getEl('phone-contact-grid').classList.add('hidden');
     getEl('phone-dialing-screen').classList.remove('hidden');
     
@@ -308,7 +303,7 @@ function generatePhoneAnswer(type) {
         timerSpan.textContent = time;
         if(time <= 0) {
             clearInterval(dialInterval);
-            showPhoneResult(type); // Tampilkan hasil
+            showPhoneResult(type);
         }
     }, 1000);
 }
@@ -354,7 +349,7 @@ function useFiftyFifty() {
 // --- Utils & Host ---
 function startTimer(val = 60) {
     clearInterval(timerInterval);
-    let t = val;
+    let t = (val && val > 0) ? val : 60;
     getEl('timer').textContent = t;
     timerInterval = setInterval(() => {
         t--;
@@ -392,23 +387,6 @@ function parseCSV(text) {
     }).filter(x => x);
 }
 
-function buildLadder() {
-    const ul = getEl('prize-ladder');
-    ul.innerHTML = "";
-    prizeLadderDisplay.forEach((p, i) => {
-        const li = document.createElement('li');
-        li.textContent = `${i+1}. ${p}`;
-        if(i===4 || i===9 || i===14) li.classList.add('safe');
-        ul.appendChild(li);
-    });
-}
-function updateLadder() {
-    document.querySelectorAll('#prize-ladder li').forEach((li, i) => {
-        if(i === currentQuestionIndex) li.classList.add('current');
-        else li.classList.remove('current');
-    });
-}
-
 async function generateCustomGame() {
     const url = getEl('google-sheet-input').value;
     if(!url.includes('output=csv')) return alert("Link harus CSV!");
@@ -443,4 +421,18 @@ async function viewCustomScores() {
 function exportScoresToExcel() {
     const wb = XLSX.utils.table_to_book(getEl('score-table'));
     XLSX.writeFile(wb, "Leaderboard.xlsx");
+}
+
+async function saveScore(name, scoreValue) {
+    console.log(`Menyimpan skor: ${name} - ${scoreValue}`);
+    try {
+        const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
+        await addDoc(collection(db, leaderboardCollection), {
+            nama: name,
+            skor: scoreValue,
+            tanggal: serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Gagal menyimpan skor: ", error);
+    }
 }
