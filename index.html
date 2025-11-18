@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kuis Milioner</title>
+    <!-- BARIS INI BARU: Memberitahu browser untuk menggunakan logo.png sebagai ikon tab -->
+    <link rel="icon" href="logo.png" type="image/png">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -65,39 +67,29 @@
         </div>
     </div>
 
-    <!-- ****************************************** -->
-    <!-- LAYAR PERMAINAN (LAYOUT v20 - POSISI BANTUAN DIPERBAIKI) -->
-    <!-- ****************************************** -->
+    <!-- Layar Permainan (v20) -->
     <div id="game-screen" class="screen">
         <div class="game-container">
             
-            <!-- Kiri: Area Kuis -->
             <div class="quiz-main">
                 <div class="top-bar">
                     <div id="timer">60</div>
-                    <!-- Tombol Bantuan DIHAPUS dari sini -->
                 </div>
-
-                <!-- Kontainer QA (PERBAIKAN TINGGI) -->
                 <div class="qa-container">
                     <div id="question-container">
                         <p id="question-text">...</p>
                     </div>
-
-                    <!-- Tombol Bantuan PINDAH KE SINI (v20) -->
                     <div class="lifelines">
                         <button class="lifeline" id="lifeline-5050">½</button>
                         <button class="lifeline" id="lifeline-poll">📊</button>
                         <button class="lifeline" id="lifeline-phone">📞</button>
                     </div>
-
                     <div id="options-container">
                          <!-- Opsi dibuat oleh JS -->
                     </div>
                 </div>
             </div>
             
-            <!-- Kanan: Tangga Hadiah -->
             <div class="prize-ladder-container">
                 <ul id="prize-ladder">
                     <!-- JS akan mengisi ini -->
@@ -105,7 +97,7 @@
             </div>
         </div>
 
-        <!-- MODAL-MODAL GAME -->
+        <!-- Modals Game -->
         <div id="confirm-modal" class="modal-overlay">
              <div class="modal-content">
                 <p>Yakin?</p>
@@ -142,6 +134,7 @@
         </div>
     </div>
 
+    <!-- Audio & Script -->
     <audio id="opening-audio" src="opening.mp3"></audio>
     <audio id="bg-audio" src="musik.mp3" loop></audio>
     <audio id="correct-audio" src="benar.mp3"></audio>
