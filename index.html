@@ -66,30 +66,38 @@
     </div>
 
     <!-- ****************************************** -->
-    <!-- LAYAR PERMAINAN (LAYOUT v19 - HYBRID) -->
+    <!-- LAYAR PERMAINAN (LAYOUT v20 - POSISI BANTUAN DIPERBAIKI) -->
     <!-- ****************************************** -->
     <div id="game-screen" class="screen">
         <div class="game-container">
             
-            <!-- Kiri: Area Kuis (Layout Asli) -->
+            <!-- Kiri: Area Kuis -->
             <div class="quiz-main">
                 <div class="top-bar">
                     <div id="timer">60</div>
+                    <!-- Tombol Bantuan DIHAPUS dari sini -->
+                </div>
+
+                <!-- Kontainer QA (PERBAIKAN TINGGI) -->
+                <div class="qa-container">
+                    <div id="question-container">
+                        <p id="question-text">...</p>
+                    </div>
+
+                    <!-- Tombol Bantuan PINDAH KE SINI (v20) -->
                     <div class="lifelines">
                         <button class="lifeline" id="lifeline-5050">½</button>
                         <button class="lifeline" id="lifeline-poll">📊</button>
                         <button class="lifeline" id="lifeline-phone">📞</button>
                     </div>
-                </div>
-                <div class="qa-container">
-                    <div id="question-container">
-                        <p id="question-text">...</p>
+
+                    <div id="options-container">
+                         <!-- Opsi dibuat oleh JS -->
                     </div>
-                    <div id="options-container"></div>
                 </div>
             </div>
             
-            <!-- Kanan: Tangga Hadiah (Akan pindah ke atas di HP) -->
+            <!-- Kanan: Tangga Hadiah -->
             <div class="prize-ladder-container">
                 <ul id="prize-ladder">
                     <!-- JS akan mengisi ini -->
@@ -105,7 +113,6 @@
                 <button id="confirm-no">TIDAK</button>
             </div>
         </div>
-
         <div id="phone-modal" class="modal-overlay">
             <div class="modal-content-small">
                 <h3 id="phone-title">Bantuan Telepon</h3>
@@ -126,7 +133,6 @@
                 </div>
             </div>
         </div>
-
         <div id="poll-modal" class="modal-overlay">
             <div class="modal-content-small">
                 <h3>Polling Penonton</h3>
@@ -136,7 +142,6 @@
         </div>
     </div>
 
-    <!-- Audio & Script -->
     <audio id="opening-audio" src="opening.mp3"></audio>
     <audio id="bg-audio" src="musik.mp3" loop></audio>
     <audio id="correct-audio" src="benar.mp3"></audio>
