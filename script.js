@@ -17,7 +17,7 @@ try {
     db = getFirestore(app);
 } catch (e) { console.error("Firebase Init Error:", e); }
 
-// --- LOGIKA HADIAH DINAMIS ---
+// --- LOGIKA HADIAH DINAMIS & DEVICE ---
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
 
@@ -26,6 +26,7 @@ const prizeLadderDisplay_Mobile = prizeLadderValues_Mobile.map(v => "Rp " + v.to
 
 let currentLadderValues = [];
 let currentLadderDisplay = [];
+let deviceType = "PC"; // Default
 
 let playerName = "", currentQuestions = [], currentQuestionIndex = 0, currentScore = 0;
 let timerInterval, dialInterval, customGameId = null, selectedOption = null;
@@ -119,13 +120,17 @@ async function startGame() {
     getEl('start-game-btn').disabled = true;
     getEl('start-game-btn').textContent = "Memuat...";
 
+    // --- LOGIKA DEVICE & HADIAH ---
     if (window.innerWidth <= 768) {
+        deviceType = "HP";
         currentLadderValues = prizeLadderValues_Mobile;
         currentLadderDisplay = prizeLadderDisplay_Mobile;
     } else {
+        deviceType = "PC";
         currentLadderValues = prizeLadderValues_Full;
         currentLadderDisplay = prizeLadderDisplay_Full;
     }
+    // -----------------------------
     
     if (!customGameId) {
         const fase = getEl('fase-select').value;
@@ -166,8 +171,7 @@ function showQuestion() {
     container.innerHTML = "";
     
     let opts = q.o.split('\\');
-    // Acak opsi menggunakan Fisher-Yates juga
-    opts = shuffleArray(opts);
+    opts = shuffleArray(opts); // Gunakan shuffleArray yang lebih baik
     
     opts.forEach((txt, idx) => {
         const char = String.fromCharCode(65 + idx);
@@ -212,7 +216,7 @@ function processAnswer() {
 function winGame() {
     alert(`SELAMAT! Anda menang ${currentLadderDisplay[14]}`); 
     saveScore(playerName, currentScore);
-    resetGame();
+    setTimeout(resetGame, 2000); // Beri jeda sebelum refresh
 }
 
 function loseGame() {
@@ -222,20 +226,16 @@ function loseGame() {
     
     alert(`Game Over! Anda membawa pulang: Rp ${finalScore.toLocaleString('id-ID')}`);
     saveScore(playerName, finalScore);
-    resetGame();
+    setTimeout(resetGame, 2000); // Beri jeda sebelum refresh
 }
 
+// --- PERUBAHAN v22: REFRESH TOTAL ---
 function resetGame() {
-    getEl('bg-audio').pause();
-    getEl('bg-audio').currentTime = 0;
-    getEl('game-screen').classList.remove('active');
-    getEl('start-screen').classList.add('active');
-    getEl('start-game-btn').disabled = false;
-    getEl('start-game-btn').textContent = "Mulai Bermain";
+    // Refresh halaman secara paksa agar memori dan pengacakan bersih total
+    window.location.reload();
 }
 
 // --- LIFELINES ---
-
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
     if(btn.classList.contains('used')) return;
@@ -372,8 +372,6 @@ function startTimer(val = 60) {
 }
 function stopTimer() { clearInterval(timerInterval); }
 
-// --- PERBAIKAN: ALGORITMA PENGACAKAN (Fisher-Yates) ---
-// Menggantikan .sort(random - 0.5) yang bias
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -387,7 +385,6 @@ function sortQuestionsByDifficulty(allQ) {
     const med = allQ.filter(x => x.difficulty == 2);
     const hard = allQ.filter(x => x.difficulty == 3);
     
-    // Gunakan shuffleArray, bukan sort random
     const shuffledEasy = shuffleArray([...easy]);
     const shuffledMed = shuffleArray([...med]);
     const shuffledHard = shuffleArray([...hard]);
@@ -455,7 +452,16 @@ async function viewCustomScores() {
         tbody.innerHTML = "";
         snap.forEach((d, i) => {
             const data = d.data();
-            tbody.innerHTML += `<tr><td>${i+1}</td><td>${data.nama}</td><td>${data.skor.toLocaleString()}</td><td>-</td></tr>`;
+            // Format tanggal
+            const date = data.tanggal ? data.tanggal.toDate().toLocaleDateString('id-ID') : '-';
+            // Tambahkan kolom Device
+            tbody.innerHTML += `<tr>
+                <td>${i+1}</td>
+                <td>${data.nama}</td>
+                <td>${data.skor.toLocaleString()}</td>
+                <td>${data.device || '-'}</td>
+                <td>${date}</td>
+            </tr>`;
         });
         getEl('score-view-modal').style.display = 'flex';
     } catch(e) { alert("Gagal ambil skor."); }
@@ -466,13 +472,15 @@ function exportScoresToExcel() {
     XLSX.writeFile(wb, "Leaderboard.xlsx");
 }
 
+// --- PERUBAHAN v22: SIMPAN INFO DEVICE ---
 async function saveScore(name, scoreValue) {
-    console.log(`Menyimpan skor: ${name} - ${scoreValue}`);
+    console.log(`Menyimpan skor: ${name} - ${scoreValue} - ${deviceType}`);
     try {
         const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
         await addDoc(collection(db, leaderboardCollection), {
             nama: name,
             skor: scoreValue,
+            device: deviceType, // Simpan info HP/PC
             tanggal: serverTimestamp()
         });
     } catch (error) {
