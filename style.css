@@ -55,6 +55,7 @@ button:active { transform: scale(0.98); }
     display: flex; 
     flex-direction: column; 
     height: 100%; /* Pastikan tinggi penuh */
+    min-width: 0; /* Perbaikan flexbox */
 }
 /* KEMBALI KE SIDEBAR DI PC */
 .prize-ladder-container { 
@@ -154,8 +155,6 @@ button:active { transform: scale(0.98); }
 
 /* --- Mobile Responsive (Layout v19) --- */
 @media (max-width: 768px) {
-    body { background-color: #6a8dff; } /* Pastikan biru pucat */
-    
     .game-container { 
         flex-direction: column; /* Ubah ke Kolom */
         padding: 10px; 
