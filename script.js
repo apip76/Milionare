@@ -17,16 +17,25 @@ try {
     db = getFirestore(app);
 } catch (e) { console.error("Firebase Init Error:", e); }
 
-// --- LOGIKA HADIAH & DEVICE ---
+// --- DATA HADIAH & POIN (v24) ---
+// Uang
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
-const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
-
 const prizeLadderValues_Mobile = [50, 125, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
+
+// Tampilan
+const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
 const prizeLadderDisplay_Mobile = prizeLadderValues_Mobile.map(v => "Rp " + v.toLocaleString('id-ID'));
+
+// Sistem Poin (1-100) - Sesuai Permintaan
+// Mudah (4 poin/soal), Sedang (7 poin/soal), Sulit (9 poin/soal)
+const pointSystem = [4, 8, 12, 16, 20, 27, 34, 41, 48, 55, 64, 73, 82, 91, 100];
 
 let currentLadderValues = [];
 let currentLadderDisplay = [];
-let deviceType = "PC"; // Default
+let deviceType = "PC"; 
+
+// Variabel Data Mentah untuk Excel
+let rawLeaderboardData = []; 
 
 let playerName = "", currentQuestions = [], currentQuestionIndex = 0, currentScore = 0;
 let timerInterval, dialInterval, customGameId = null, selectedOption = null;
@@ -120,7 +129,6 @@ async function startGame() {
     getEl('start-game-btn').disabled = true;
     getEl('start-game-btn').textContent = "Memuat...";
 
-    // --- DEVICE DETECTION ---
     if (window.innerWidth <= 768) {
         deviceType = "HP";
         currentLadderValues = prizeLadderValues_Mobile;
@@ -228,7 +236,6 @@ function loseGame() {
     setTimeout(resetGame, 2000);
 }
 
-// --- PERBAIKAN v22: Auto Refresh ---
 function resetGame() {
     window.location.reload();
 }
@@ -382,11 +389,9 @@ function sortQuestionsByDifficulty(allQ) {
     const easy = allQ.filter(x => x.difficulty == 1);
     const med = allQ.filter(x => x.difficulty == 2);
     const hard = allQ.filter(x => x.difficulty == 3);
-    
     const shuffledEasy = shuffleArray([...easy]);
     const shuffledMed = shuffleArray([...med]);
     const shuffledHard = shuffleArray([...hard]);
-    
     if(shuffledEasy.length < 5 || shuffledMed.length < 5 || shuffledHard.length < 5) return [];
     return [...shuffledEasy.slice(0,5), ...shuffledMed.slice(0,5), ...shuffledHard.slice(0,5)];
 }
@@ -439,11 +444,15 @@ async function generateCustomGame() {
     } catch(e) { alert("Gagal: " + e.message); }
 }
 
+// --- MODIFIKASI v24: Simpan Data Mentah & Hide Poin di Tampilan ---
 async function viewCustomScores() {
     const id = getEl('view-quiz-id-input').value;
     if(!id) return;
     const tbody = getEl('score-table-body');
     tbody.innerHTML = "Loading...";
+    
+    rawLeaderboardData = []; // Reset data mentah
+
     try {
         const q = query(collection(db, `leaderboard_${id}`), orderBy('skor', 'desc'), limit(50));
         const snap = await getDocs(q);
@@ -451,12 +460,23 @@ async function viewCustomScores() {
         snap.forEach((d, i) => {
             const data = d.data();
             const date = data.tanggal ? data.tanggal.toDate().toLocaleDateString('id-ID') : '-';
-            // Tampilkan kolom Device
+            
+            // Simpan data asli untuk Excel (Termasuk Poin & Device)
+            rawLeaderboardData.push({
+                Peringkat: i + 1,
+                Nama: data.nama,
+                Uang_Rp: data.skor, // Angka murni untuk Excel
+                Nilai_Skor: data.poin || 0, // Poin 0-100
+                Perangkat: data.device || 'PC',
+                Tanggal: date
+            });
+
+            // Tampilan di Aplikasi (TANPA Poin)
             tbody.innerHTML += `<tr>
                 <td>${i+1}</td>
                 <td>${data.nama}</td>
-                <td>${data.skor.toLocaleString()}</td>
-                <td>${data.device || '-'}</td>
+                <td>Rp ${data.skor.toLocaleString('id-ID')}</td>
+                <td>${data.device || 'PC'}</td>
                 <td>${date}</td>
             </tr>`;
         });
@@ -464,24 +484,42 @@ async function viewCustomScores() {
     } catch(e) { alert("Gagal ambil skor."); }
 }
 
-// --- PERBAIKAN v23: Akses window.XLSX ---
+// --- MODIFIKASI v24: Export Data Mentah (JSON) ke Excel ---
 function exportScoresToExcel() {
     if (!window.XLSX) return alert("Library Excel belum siap. Refresh halaman.");
+    if (rawLeaderboardData.length === 0) return alert("Belum ada data untuk diexport.");
+
+    // Buat Worksheet dari JSON data mentah (yang ada kolom Poin-nya)
+    const ws = window.XLSX.utils.json_to_sheet(rawLeaderboardData);
     
-    const table = document.getElementById('score-table');
-    const wb = window.XLSX.utils.table_to_book(table, {sheet: "Leaderboard"});
+    const wb = window.XLSX.utils.book_new();
+    window.XLSX.utils.book_append_sheet(wb, ws, "Leaderboard");
+    
     const quizId = getEl('view-quiz-id-input').value.split('#').pop().trim() || "leaderboard";
     window.XLSX.writeFile(wb, `Skor_${quizId}.xlsx`);
 }
 
+// --- MODIFIKASI v24: Simpan Poin (0-100) ---
 async function saveScore(name, scoreValue) {
-    console.log(`Menyimpan skor: ${name} - ${scoreValue} - ${deviceType}`);
+    // Hitung Poin berdasarkan Uang yang dimenangkan
+    let points = 0;
+    const ladderIndex = currentLadderValues.indexOf(scoreValue);
+    
+    if (ladderIndex !== -1) {
+        points = pointSystem[ladderIndex]; // Ambil dari array poin
+    } else if (scoreValue === 0) {
+        points = 0;
+    }
+    
+    console.log(`Simpan: ${name} | Rp ${scoreValue} | Poin ${points} | ${deviceType}`);
+
     try {
         const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
         await addDoc(collection(db, leaderboardCollection), {
             nama: name,
-            skor: scoreValue,
-            device: deviceType, // Simpan Device
+            skor: scoreValue, // Uang
+            poin: points,     // Nilai (1-100)
+            device: deviceType,
             tanggal: serverTimestamp()
         });
     } catch (error) {
