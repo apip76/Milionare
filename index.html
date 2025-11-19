@@ -71,7 +71,6 @@
                 </div>
             </div>
 
-            <!-- Modal Skor (Update: Tambah Kolom Nilai) -->
             <div id="score-view-modal" class="modal-overlay">
                 <div class="modal-content-large">
                     <h3>Hasil Kuis</h3>
@@ -83,7 +82,7 @@
                                     <th>#</th>
                                     <th>Nama</th>
                                     <th>Hadiah (Rp)</th>
-                                    <th>Nilai (0-100)</th> <!-- KOLOM BARU -->
+                                    <th>Nilai (0-100)</th>
                                     <th>Device</th>
                                     <th>Tgl</th>
                                 </tr>
@@ -104,9 +103,26 @@
     <div id="game-screen" class="screen">
         <div class="game-container">
             <div class="quiz-main">
+                
+                <!-- ***** PERUBAHAN v28: AREA IKLAN DI ATAS ***** -->
                 <div class="top-bar">
+                    <!-- Iklan Kiri -->
+                    <div class="ad-space left">
+                        <span>IKLAN</span>
+                        <!-- Tempel Kode Iklan Anda Di Sini -->
+                    </div>
+
+                    <!-- Timer (Tengah) -->
                     <div id="timer">60</div>
+
+                    <!-- Iklan Kanan -->
+                    <div class="ad-space right">
+                        <span>IKLAN</span>
+                        <!-- Tempel Kode Iklan Anda Di Sini -->
+                    </div>
                 </div>
+                <!-- ******************************************* -->
+
                 <div class="qa-container">
                     <div id="question-container">
                         <p id="question-text">...</p>
@@ -124,10 +140,10 @@
             </div>
         </div>
 
+        <!-- Modals Game -->
         <div id="confirm-modal" class="modal-overlay">
              <div class="modal-content">
-                <p>Yakin dengan Jawaban anda?
-                </p>
+                <p>Yakin?</p>
                 <button id="confirm-yes">YA</button>
                 <button id="confirm-no">TIDAK</button>
             </div>
@@ -168,9 +184,7 @@
     <audio id="correct-audio" src="benar.mp3"></audio>
     <audio id="wrong-audio" src="salah.mp3"></audio>
 
-    <!-- Library Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
-
