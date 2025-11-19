@@ -66,13 +66,12 @@
                 <div class="modal-content-small">
                     <h3>Link Kuis Siap!</h3>
                     <input type="text" id="shareable-link-input" readonly>
-                    <!-- Tombol Copy Link -->
                     <button id="copy-link-btn">SALIN LINK (COPY)</button>
                     <button id="close-share-modal-btn">Tutup</button>
                 </div>
             </div>
 
-            <!-- Modal Skor (Kolom Device Ditambahkan) -->
+            <!-- Modal Skor (Update: Tambah Kolom Nilai) -->
             <div id="score-view-modal" class="modal-overlay">
                 <div class="modal-content-large">
                     <h3>Hasil Kuis</h3>
@@ -83,8 +82,9 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Nama</th>
-                                    <th>Skor</th>
-                                    <th>Device</th> <!-- Info HP/PC -->
+                                    <th>Hadiah (Rp)</th>
+                                    <th>Nilai (0-100)</th> <!-- KOLOM BARU -->
+                                    <th>Device</th>
                                     <th>Tgl</th>
                                 </tr>
                             </thead>
@@ -167,7 +167,7 @@
     <audio id="correct-audio" src="benar.mp3"></audio>
     <audio id="wrong-audio" src="salah.mp3"></audio>
 
-    <!-- LINK SCRIPT BARU (LEBIH STABIL) -->
+    <!-- Library Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script type="module" src="script.js"></script>
 </body>
