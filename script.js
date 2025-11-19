@@ -17,25 +17,23 @@ try {
     db = getFirestore(app);
 } catch (e) { console.error("Firebase Init Error:", e); }
 
-// --- DATA HADIAH & POIN (v24) ---
-// Uang
+// --- DATA HADIAH & POIN (v25 - Update Poin) ---
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderValues_Mobile = [50, 125, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
 
-// Tampilan
 const prizeLadderDisplay_Full = prizeLadderValues_Full.map(v => "Rp " + v.toLocaleString('id-ID'));
 const prizeLadderDisplay_Mobile = prizeLadderValues_Mobile.map(v => "Rp " + v.toLocaleString('id-ID'));
 
-// Sistem Poin (1-100) - Sesuai Permintaan
-// Mudah (4 poin/soal), Sedang (7 poin/soal), Sulit (9 poin/soal)
-const pointSystem = [4, 8, 12, 16, 20, 27, 34, 41, 48, 55, 64, 73, 82, 91, 100];
+// Sistem Poin BARU (Sesuai Request: Level 10 = 81, Level 15 = 100)
+const pointSystem = [
+    8, 16, 24, 32, 40, // Level 1-5 (Mudah)
+    48, 56, 64, 72, 81, // Level 6-10 (Sedang, Puncak Sedang = 81)
+    85, 89, 92, 96, 100 // Level 11-15 (Sulit, Puncak = 100)
+];
 
 let currentLadderValues = [];
 let currentLadderDisplay = [];
 let deviceType = "PC"; 
-
-// Variabel Data Mentah untuk Excel
-let rawLeaderboardData = []; 
 
 let playerName = "", currentQuestions = [], currentQuestionIndex = 0, currentScore = 0;
 let timerInterval, dialInterval, customGameId = null, selectedOption = null;
@@ -389,9 +387,11 @@ function sortQuestionsByDifficulty(allQ) {
     const easy = allQ.filter(x => x.difficulty == 1);
     const med = allQ.filter(x => x.difficulty == 2);
     const hard = allQ.filter(x => x.difficulty == 3);
+    
     const shuffledEasy = shuffleArray([...easy]);
     const shuffledMed = shuffleArray([...med]);
     const shuffledHard = shuffleArray([...hard]);
+    
     if(shuffledEasy.length < 5 || shuffledMed.length < 5 || shuffledHard.length < 5) return [];
     return [...shuffledEasy.slice(0,5), ...shuffledMed.slice(0,5), ...shuffledHard.slice(0,5)];
 }
@@ -444,15 +444,12 @@ async function generateCustomGame() {
     } catch(e) { alert("Gagal: " + e.message); }
 }
 
-// --- MODIFIKASI v24: Simpan Data Mentah & Hide Poin di Tampilan ---
+// --- MODIFIKASI v25: Tampilkan Kolom Nilai ---
 async function viewCustomScores() {
     const id = getEl('view-quiz-id-input').value;
     if(!id) return;
     const tbody = getEl('score-table-body');
     tbody.innerHTML = "Loading...";
-    
-    rawLeaderboardData = []; // Reset data mentah
-
     try {
         const q = query(collection(db, `leaderboard_${id}`), orderBy('skor', 'desc'), limit(50));
         const snap = await getDocs(q);
@@ -460,23 +457,13 @@ async function viewCustomScores() {
         snap.forEach((d, i) => {
             const data = d.data();
             const date = data.tanggal ? data.tanggal.toDate().toLocaleDateString('id-ID') : '-';
-            
-            // Simpan data asli untuk Excel (Termasuk Poin & Device)
-            rawLeaderboardData.push({
-                Peringkat: i + 1,
-                Nama: data.nama,
-                Uang_Rp: data.skor, // Angka murni untuk Excel
-                Nilai_Skor: data.poin || 0, // Poin 0-100
-                Perangkat: data.device || 'PC',
-                Tanggal: date
-            });
-
-            // Tampilan di Aplikasi (TANPA Poin)
+            // Tambahkan kolom Nilai (Poin)
             tbody.innerHTML += `<tr>
                 <td>${i+1}</td>
                 <td>${data.nama}</td>
                 <td>Rp ${data.skor.toLocaleString('id-ID')}</td>
-                <td>${data.device || 'PC'}</td>
+                <td>${data.poin || 0}</td> <!-- TAMPILKAN POIN -->
+                <td>${data.device || '-'}</td>
                 <td>${date}</td>
             </tr>`;
         });
@@ -484,29 +471,24 @@ async function viewCustomScores() {
     } catch(e) { alert("Gagal ambil skor."); }
 }
 
-// --- MODIFIKASI v24: Export Data Mentah (JSON) ke Excel ---
 function exportScoresToExcel() {
     if (!window.XLSX) return alert("Library Excel belum siap. Refresh halaman.");
-    if (rawLeaderboardData.length === 0) return alert("Belum ada data untuk diexport.");
-
-    // Buat Worksheet dari JSON data mentah (yang ada kolom Poin-nya)
-    const ws = window.XLSX.utils.json_to_sheet(rawLeaderboardData);
     
-    const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, ws, "Leaderboard");
-    
+    const table = document.getElementById('score-table');
+    // Gunakan opsi {raw:true} agar angka tetap angka, bukan string
+    const wb = window.XLSX.utils.table_to_book(table, {sheet: "Leaderboard", raw: true});
     const quizId = getEl('view-quiz-id-input').value.split('#').pop().trim() || "leaderboard";
     window.XLSX.writeFile(wb, `Skor_${quizId}.xlsx`);
 }
 
-// --- MODIFIKASI v24: Simpan Poin (0-100) ---
+// --- MODIFIKASI v25: Hitung Poin Baru ---
 async function saveScore(name, scoreValue) {
     // Hitung Poin berdasarkan Uang yang dimenangkan
     let points = 0;
     const ladderIndex = currentLadderValues.indexOf(scoreValue);
     
     if (ladderIndex !== -1) {
-        points = pointSystem[ladderIndex]; // Ambil dari array poin
+        points = pointSystem[ladderIndex]; // Ambil dari array poin baru (Level 10 = 81)
     } else if (scoreValue === 0) {
         points = 0;
     }
@@ -517,8 +499,8 @@ async function saveScore(name, scoreValue) {
         const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
         await addDoc(collection(db, leaderboardCollection), {
             nama: name,
-            skor: scoreValue, // Uang
-            poin: points,     // Nilai (1-100)
+            skor: scoreValue,
+            poin: points,     // Simpan Poin
             device: deviceType,
             tanggal: serverTimestamp()
         });
