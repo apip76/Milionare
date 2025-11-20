@@ -18,7 +18,7 @@ try {
 } catch (e) { console.error("Firebase Init Error:", e); }
 
 // *********************************************************
-// ***** PANDUAN EDIT IKLAN (KIRI & KANAN) DI SINI *****
+// ***** DATABASE IKLAN (KIRI & KANAN) *****
 // *********************************************************
 
 // 1. DAFTAR IKLAN KIRI (Shopee, dll)
@@ -26,23 +26,23 @@ const adsListLeft = [
     {
         title: "Shopee Sale",
         sub: "Diskon 50%",
-        link: "https://id.shp.ee/yV4nP7v", // Link Affiliate Anda
+        link: "https://id.shp.ee/yV4nP7v", 
         icon: "🛍️",
-        color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" // Oranye
+        color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" 
     },
     {
         title: "Flash Sale",
         sub: "Serba Seribu",
         link: "https://shopee.co.id/flash_sale",
         icon: "⚡",
-        color: "linear-gradient(to bottom, #eace00, #ffd600)" // Kuning
+        color: "linear-gradient(to bottom, #eace00, #ffd600)"
     },
     {
         title: "Gratis Ongkir",
         sub: "Klaim Voucher",
         link: "https://shopee.co.id/m/gratis-ongkir",
         icon: "🚚",
-        color: "linear-gradient(to bottom, #00bfa5, #00897b)" // Hijau Tosca
+        color: "linear-gradient(to bottom, #00bfa5, #00897b)" 
     }
 ];
 
@@ -51,27 +51,26 @@ const adsListRight = [
     {
         title: "Tokopedia",
         sub: "Belanja Sekarang",
-        link: "https://tk.tokopedia.com/ZSfNbeWsu/", // Link Affiliate Anda
+        link: "https://tk.tokopedia.com/ZSfNbeWsu/", 
         icon: "💚",
-        color: "linear-gradient(to bottom, #42b549, #35953d)" // Hijau Tokped
+        color: "linear-gradient(to bottom, #42b549, #35953d)" 
     },
     {
         title: "WIB Promo",
         sub: "Waktu Indo Belanja",
         link: "https://www.tokopedia.com/discovery/wib",
         icon: "📅",
-        color: "linear-gradient(to bottom, #00aa5b, #007a41)" // Hijau Tua
+        color: "linear-gradient(to bottom, #00aa5b, #007a41)" 
     },
     {
         title: "Elektronik",
         sub: "Diskon Gadget",
         link: "https://www.tokopedia.com/p/handphone-tablet",
         icon: "📱",
-        color: "linear-gradient(to bottom, #2196f3, #1565c0)" // Biru
+        color: "linear-gradient(to bottom, #2196f3, #1565c0)" 
     }
 ];
 
-// Variabel Counter
 let indexLeft = 0;
 let indexRight = 0;
 
@@ -93,49 +92,35 @@ const getEl = (id) => document.getElementById(id);
 window.addEventListener('DOMContentLoaded', () => {
     checkURLHash();
     setupEventListeners();
-    startAdRotation(); // Mulai putaran iklan
+    startAdRotation(); 
 });
 
-// --- FUNGSI ROTASI IKLAN (DUAL SIDE) ---
+// --- FUNGSI ROTASI IKLAN ---
 function startAdRotation() {
-    // Inisialisasi Tampilan Awal
     updateAdSide('left', 0);
     updateAdSide('right', 0);
 
-    // Putar setiap 4 detik
     setInterval(() => {
-        // Update Index
         indexLeft = (indexLeft + 1) % adsListLeft.length;
         indexRight = (indexRight + 1) % adsListRight.length;
-
-        // Update Tampilan dengan Animasi
         animateAdUpdate('left', indexLeft);
         animateAdUpdate('right', indexRight);
-        
-    }, 4000); // Ganti angka 4000 untuk mengubah kecepatan (ms)
+    }, 4000); 
 }
 
 function animateAdUpdate(side, index) {
     const btn = getEl(`dynamic-ad-link-${side}`);
     if(!btn) return;
-
-    // 1. Fade Out
     btn.classList.add('fade-out');
-    
-    // 2. Ganti Konten setelah 0.5s (saat opacity 0)
     setTimeout(() => {
         updateAdSide(side, index);
-        // 3. Fade In
         btn.classList.remove('fade-out');
     }, 500);
 }
 
 function updateAdSide(side, index) {
-    // Pilih list yang benar
     const list = (side === 'left') ? adsListLeft : adsListRight;
     const ad = list[index];
-
-    // Ambil elemen
     const btn = getEl(`dynamic-ad-link-${side}`);
     const title = getEl(`dynamic-ad-title-${side}`);
     const sub = getEl(`dynamic-ad-sub-${side}`);
@@ -544,26 +529,3 @@ async function saveScore(name, moneyValue, pointsValue) {
         console.error("Gagal menyimpan skor: ", error);
     }
 }
-```
-
-### 3. Panduan Mengganti Link (PENTING)
-
-Buka file `script.js` Anda. Di bagian atas (baris 30-60), Anda akan melihat daftar seperti ini. Ganti URL di bagian `link: "..."`.
-
-```javascript
-const adsListLeft = [
-    {
-        title: "Produk A",
-        link: "https://link-shopee-anda-1.com", // <-- GANTI INI
-        // ...
-    },
-    // ... tambah link lain ...
-];
-
-const adsListRight = [
-    {
-        title: "Produk B",
-        link: "https://link-tokopedia-anda-1.com", // <-- GANTI INI
-        // ...
-    }
-];
