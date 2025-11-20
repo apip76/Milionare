@@ -25,7 +25,7 @@ const adsList = [
     { title: "Tokopedia", sub: "Belanja Sekarang", link: "https://tk.tokopedia.com/ZSfNbeWsu/", icon: "💚", color: "linear-gradient(to bottom, #42b549, #35953d)" },
     { title: "Flash Sale", sub: "Serba Seribu", link: "https://shopee.co.id/flash_sale", icon: "⚡", color: "linear-gradient(to bottom, #eace00, #ffd600)" },
     { title: "WIB Promo", sub: "Waktu Indo Belanja", link: "https://www.tokopedia.com/discovery/wib", icon: "📅", color: "linear-gradient(to bottom, #00aa5b, #007a41)" },
-    { title: "Gratis Ongkir", sub: "Klaim Voucher", link: "https://shopee.co.id/m/gratis-ongkir", icon: "🚚", color: "linear-gradient(to bottom, #00bfa5, #00897b)" },
+    { title: "Gratis Ongkir", sub: "Klaim Voucher", link: "https://collshp.com/apiparo339?share_channel_code=1&view=storefront", icon: "🚚", color: "linear-gradient(to bottom, #00bfa5, #00897b)" },
     { title: "Elektronik", sub: "Diskon Gadget", link: "https://www.tokopedia.com/p/handphone-tablet", icon: "📱", color: "linear-gradient(to bottom, #2196f3, #1565c0)" }
 ];
 
@@ -501,3 +501,4 @@ async function saveScore(name, moneyValue, pointsValue) {
         console.error("Gagal menyimpan skor: ", error);
     }
 }
+
