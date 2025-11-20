@@ -18,307 +18,20 @@ try {
 } catch (e) { console.error("Firebase Init Error:", e); }
 
 // *********************************************************
-// ***** DATABASE IKLAN (DI-GENERATE OTOMATIS) *****
+// ***** DATABASE IKLAN (SATU PANEL KANAN) *****
 // *********************************************************
-
-const adsListLeft = [
-    {
-        "title": "Cek Jamise | Jenna Abaya",
-        "sub": "Abaya Basic Syari List (New Material)",
-        "link": "https://s.shopee.co.id/6VGBPpxi9k?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Pembersih Kerak Membandel",
-        "sub": "Cek Cairan Pink / Merah Zenic Cleaner 1 liter pembersih kerak",
-        "link": "https://s.shopee.co.id/AUmKBVWLgD?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #eace00, #ffd600)"
-    },
-    {
-        "title": "Cek Fazira Dress Gamis Polos Casual Size S-M L-XL 3L-XX",
-        "sub": "Pakaian Muslim Wanita Bahan Sabrina Anti UV dengan harga Rp136.050.",
-        "link": "https://s.shopee.co.id/6fZbcUjimu?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Cek T9 DRAGON",
-        "sub": "Dragon T9 Cukur Rambut Hair Clipper dengan harga Rp19.899.",
-        "link": "https://s.shopee.co.id/9AGwb80LQ1?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #f44336, #d32f2f)"
-    },
-    {
-        "title": "Cek CELANA Sport DewasaTerbaru",
-        "sub": "AM/Jumbo/Pria Dewasa, dengan harga Rp13.500.",
-        "link": "https://s.shopee.co.id/8fKg0EWR57?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
-    },
-    {
-        "title": "Cek Reaim Jet Cleaner 130Bar",
-        "sub": "Jet Cleaner Mesin Cuci Mobil Alat Cuci Motor Dan Mobil dengan harga Rp94.999.",
-        "link": "https://s.shopee.co.id/2qMt3XIucE?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #eace00, #ffd600)"
-    },
-    {
-        "title": "Cek HEADPHONE Bluetooth Gaming Headset Wireless Pro Bass P47 headset",
-        "sub": " Bluetooth p47 headset bluetooth dengan harga Rp26.990",
-        "link": "https://s.shopee.co.id/7fS8oRUDcW?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Cek 100% BESTSELLER!",
-        "sub": "Sepatu Sport Anak Laki Laki Sneaker Anak Keren. Bagus dengan harga Rp100.000",
-        "link": "https://s.shopee.co.id/5q0Ud66D8Y?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
-    },
-    {
-        "title": "Cek HEADPHONE",
-        "sub": "Bluetooth Gaming, harga Rp26.990. Dapatkan di Shopee sekarang! ",
-        "link": "https://s.shopee.co.id/gIOTctvjz?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Cek Botol Minuman Portable Cup 600 & 800 ML",
-        "sub": "High Quality dengan harga Rp6.999. Dapatkan di Shopee sekarang!",
-        "link": "https://s.shopee.co.id/6VGBQNFSCr?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #eace00, #ffd600)"
-    },
-    {
-        "title": "Cek VECLA Semprotan Pengusir Tikus Alami Obat Anti Tikus Ampuh",
-        "sub": "Mobil dan Rumah 250 ml dengan harga Rp19.997. Dapatkan di Shopee sekarang!",
-        "link": "https://s.shopee.co.id/2B7CGR4XQW?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #f44336, #d32f2f)"
-    },
-    {
-        "title": "Cek Dispenser Beras Otomatis & Estetik - 5kg/10kg",
-        "sub": "Wadah penyimpanan Beras Food Grade & Anti Kutu dengan harga Rp97.830.",
-        "link": "https://s.shopee.co.id/804zDAzJu3?share_channel_code=1",
-        "icon": "",
-        "color": "linear-gradient(to bottom, #eace00, #ffd600)"
-    },
-    {
-        "title": "Cek M10 Headset Bluetooth Wireless",
-        "sub": "TWS + Power Bank 3500mAh dengan harga Rp28.776.",
-        "link": "https://s.shopee.co.id/1LY5Gxstav?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Mantel Hujan Wanita Muslimah Syar'i",
-        "sub": "Bahan Tebal Elastis Kuat Anti Rembes By HANS dengan harga Rp62.183",
-        "link": "https://s.shopee.co.id/7plZ0xJvuq?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "STARBUCKS Tumbler Stainley Tumbler",
-        "sub": "Tumbler Stainless Steel Polished 473ml, harga Rp71.250",
-        "link": "https://s.shopee.co.id/30gJG6tXL5?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #eace00, #ffd600)"
-    },
-    {
-        "title": "Cek BISA COD parfum pria Paket Bundling ( BUY 1 GET 4 ) ",
-        "sub": "Parfum MR CRASH dengan harga Rp28.500. Dapatkan di Shopee sekarang!",
-        "link": "https://s.shopee.co.id/30gJG8X4f3?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #eace00, #ffd600)"
-    },
-    {
-        "title": "Payung Lipat Otomatis Jumbo Buka Tutup Anti UV",
-        "sub": "Payung Lipat Otomatis 10 Rangka Premium Quality dengan harga Rp27.985",
-        "link": "https://s.shopee.co.id/9pWdOkIQeR?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Cek 4 pcs 100 ribu kaos pria wanita terlaris, harga Rp100.000",
-        "sub": "Dapatkan di Shopee sekarang!",
-        "link": "https://s.shopee.co.id/10vEsXBmxp?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
-    },
-    {
-        "title": "Cek VOOVA",
-        "sub": "Sandal Selop Wanita, Luar Rumah dengan harga Rp27.097",
-        "link": "https://s.shopee.co.id/9fDDCU9bN6?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Cek Basreng Kriuk Pedas Daun Jeruk 500gr",
-        "sub": "Homemade dengan harga Rp19.750. Dapatkan di Shopee sekarang!",
-        "link": "https://s.shopee.co.id/8Khpc53ykw?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #f44336, #d32f2f)"
-    },
-    {
-        "title": "Cek HCS Jas Hujan Pria dan Wanita Anti Rembes",
-        "sub": "Jas Hujan Setelan Mocca dengan harga Rp52.800",
-        "link": "https://s.shopee.co.id/8V1FoQtbli?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Payung Lipat Otomatis Anti UV Buka Tutup 3 Lipat Automatic Umbrella",
-        "sub": "Premium Bahan Vinyl 2 Lapis dengan harga Rp34.100",
-        "link": "https://s.shopee.co.id/1gAvftWYSc?share_channel_code=1",
-        "icon": "",
-        "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
-    },
-    {
-        "title": "Cek JAS HUJAN GAMIS SYAR'I MUSLIMAH NYAMAN PREMIUM ANTI REMBES",
-        "sub": "BY ALSTAR dengan harga Rp87.500",
-        "link": "https://s.shopee.co.id/8zxWPOzZEW?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
-    },
-    {
-        "title": "Cek PASHLINC Tumbler Tahan Panas Dingin 24Jam",
-        "sub": "Thermos Tumbler Lucu Botol Minum 900ML and 600ML dengan harga Rp145.000",
-        "link": "https://s.shopee.co.id/7V8icfvKJI?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
-    },
-    {
-        "title": "Cek Kipas Angin Genggam Portabel Turbo",
-        "sub": "100 Level, Bisa Diisi ulang, harga Rp56.000. Dapatkan di Shopee sekarang!",
-        "link": "https://s.shopee.co.id/6pt1pUA38Q?share_channel_code=1",
-        "icon": "🛍️",
-        "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
-    }
+const adsList = [
+    { title: "Shopee Sale", sub: "Diskon 50%", link: "https://id.shp.ee/yV4nP7v", icon: "🛍️", color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" },
+    { title: "Tokopedia", sub: "Belanja Sekarang", link: "https://tk.tokopedia.com/ZSfNbeWsu/", icon: "💚", color: "linear-gradient(to bottom, #42b549, #35953d)" },
+    { title: "Flash Sale", sub: "Serba Seribu", link: "https://shopee.co.id/flash_sale", icon: "⚡", color: "linear-gradient(to bottom, #eace00, #ffd600)" },
+    { title: "WIB Promo", sub: "Waktu Indo Belanja", link: "https://www.tokopedia.com/discovery/wib", icon: "📅", color: "linear-gradient(to bottom, #00aa5b, #007a41)" },
+    { title: "Gratis Ongkir", sub: "Klaim Voucher", link: "https://shopee.co.id/m/gratis-ongkir", icon: "🚚", color: "linear-gradient(to bottom, #00bfa5, #00897b)" },
+    { title: "Elektronik", sub: "Diskon Gadget", link: "https://www.tokopedia.com/p/handphone-tablet", icon: "📱", color: "linear-gradient(to bottom, #2196f3, #1565c0)" }
 ];
 
-const adsListRight = [
-    {
-        "title": "Tokopedia",
-        "sub": "Coba cek ini, deh. Harganya",
-        "link": "https://tk.tokopedia.com/ZSfFpmS5q/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #00bfa5, #00897b)"
-    },
-    {
-        "title": "Coba cek ini, deh",
-        "sub": "Harganya Rp700.000 aja!",
-        "link": "https://tk.tokopedia.com/ZSfFpmS5q/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #2196f3, #1565c0)"
-    },
-    {
-        "title": "🤩 Ada diskon 45% jadi Rp152.500, nih.",
-        "sub": "Cek di Tokopedia sebelum diskonnya kehabisan!",
-        "link": "https://tk.tokopedia.com/ZSfFsR9F9/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #00bfa5, #00897b)"
-    },
-    {
-        "title": "🤩 Ada diskon 33% jadi Rp289.000, nih",
-        "sub": "Buruan cek di Tokopedia sebelum diskonnya berakhir!",
-        "link": "https://tk.tokopedia.com/ZSfFs1FLv/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #42b549, #35953d)"
-    },
-    {
-        "title": "Coba cek ini, deh.",
-        "sub": "Harganya Rp61.680 aja!",
-        "link": "https://tk.tokopedia.com/ZSfFs2ka9/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #42b549, #35953d)"
-    },
-    {
-        "title": "🤩 Ada diskon 5% jadi Rp1.999.000, nih.",
-        "sub": "Cek di Tokopedia sebelum diskonnya kehabisan!",
-        "link": "https://tk.tokopedia.com/ZSfFsxGW4/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #0f146d, #183590)"
-    },
-    {
-        "title": "Coba cek ini, deh",
-        "sub": "Harganya Rp999.000 aja!",
-        "link": "https://tk.tokopedia.com/ZSfFspSym/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #00bfa5, #00897b)"
-    },
-    {
-        "title": "🤩 Ada diskon 52% jadi Rp62.999, nih",
-        "sub": " Cek di Tokopedia sebelum diskonnya kehabisan!",
-        "link": "https://tk.tokopedia.com/ZSfFGd3Cn/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #2196f3, #1565c0)"
-    },
-    {
-        "title": "🤩 Ada diskon 17% jadi Rp6.465.000, nih",
-        "sub": "Buruan cek di Tokopedia sebelum diskonnya berakhir!",
-        "link": "https://tk.tokopedia.com/ZSfFGGCqq/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #42b549, #35953d)"
-    },
-    {
-        "title": "🤩 Ada diskon 24% jadi Rp79.500, nih",
-        "sub": "Cek di Tokopedia sebelum diskonnya kehabisan!",
-        "link": "https://tk.tokopedia.com/ZSfFGpkWH/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #0f146d, #183590)"
-    },
-    {
-        "title": "🤩 Ada diskon 61% jadi Rp52.950, nih",
-        "sub": "Buruan cek di Tokopedia sebelum diskonnya berakhir!",
-        "link": "https://tk.tokopedia.com/ZSfFGKueu/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #2196f3, #1565c0)"
-    },
-    {
-        "title": "Coba cek ini, deh",
-        "sub": "Harganya Rp103.000 aja!",
-        "link": "https://tk.tokopedia.com/ZSfFtApq7/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #42b549, #35953d)"
-    },
-    {
-        "title": "Coba cek ini, deh.",
-        "sub": "Harganya Rp29.999 aja!",
-        "link": "https://tk.tokopedia.com/ZSfFtDsrk/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #0f146d, #183590)"
-    },
-    {
-        "title": "🤩 Ada diskon 54% jadi Rp3.250, nih. ",
-        "sub": "Cek di Tokopedia sebelum diskonnya kehabisan!",
-        "link": "https://tk.tokopedia.com/ZSfFt7QGQ/",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #42b549, #35953d)"
-    },
-    {
-        "title": "🤩 Ada diskon 77% jadi Rp20.000, nih. ",
-        "sub": "Buruan cek di Tokopedia sebelum diskonnya berakhir! ",
-        "link": "https://tk.tokopedia.com/ZSfFtGntq/ ",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #0f146d, #183590)"
-    },
-    {
-        "title": "Coba cek ini, deh. ",
-        "sub": "Harganya Rp700.000 aja! ",
-        "link": "https://tk.tokopedia.com/ZSfFtbfrk/ ",
-        "icon": "💚",
-        "color": "linear-gradient(to bottom, #42b549, #35953d)"
-    }
-];
+let adIndex = 0;
 
-let indexLeft = 0;
-let indexRight = 0;
-
-// *********************************************************
-
+// --- LOGIKA GAME ---
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderValues_Mobile = [50, 125, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
 const pointSystem = [4, 8, 12, 16, 20, 27, 34, 41, 48, 55, 64, 73, 82, 91, 100];
@@ -338,41 +51,31 @@ window.addEventListener('DOMContentLoaded', () => {
     startAdRotation(); 
 });
 
+// --- FUNGSI ROTASI IKLAN SATU PANEL ---
 function startAdRotation() {
-    if(adsListLeft.length > 0) updateAdSide('left', 0);
-    if(adsListRight.length > 0) updateAdSide('right', 0);
-
+    updateAd();
     setInterval(() => {
-        if(adsListLeft.length > 0) {
-            indexLeft = (indexLeft + 1) % adsListLeft.length;
-            animateAdUpdate('left', indexLeft);
-        }
-        if(adsListRight.length > 0) {
-            indexRight = (indexRight + 1) % adsListRight.length;
-            animateAdUpdate('right', indexRight);
-        }
+        adIndex = (adIndex + 1) % adsList.length;
+        animateAdUpdate();
     }, 10000); 
 }
 
-function animateAdUpdate(side, index) {
-    const btn = getEl(`dynamic-ad-link-${side}`);
+function animateAdUpdate() {
+    const btn = getEl('dynamic-ad-link');
     if(!btn) return;
     btn.classList.add('fade-out');
     setTimeout(() => {
-        updateAdSide(side, index);
+        updateAd();
         btn.classList.remove('fade-out');
     }, 500);
 }
 
-function updateAdSide(side, index) {
-    const list = (side === 'left') ? adsListLeft : adsListRight;
-    if(!list || list.length === 0) return;
-    
-    const ad = list[index];
-    const btn = getEl(`dynamic-ad-link-${side}`);
-    const title = getEl(`dynamic-ad-title-${side}`);
-    const sub = getEl(`dynamic-ad-sub-${side}`);
-    const icon = getEl(`dynamic-ad-icon-${side}`);
+function updateAd() {
+    const ad = adsList[adIndex];
+    const btn = getEl('dynamic-ad-link');
+    const title = getEl('dynamic-ad-title');
+    const sub = getEl('dynamic-ad-sub');
+    const icon = getEl('dynamic-ad-icon');
 
     if(btn && title && sub && icon && ad) {
         btn.href = ad.link;
@@ -438,7 +141,6 @@ function setupEventListeners() {
         document.execCommand('copy');
     });
     getEl('export-excel-btn')?.addEventListener('click', exportScoresToExcel);
-    
     getEl('options-container')?.addEventListener('click', (e) => {
         const opt = e.target.closest('.option');
         if(opt && !opt.classList.contains('disabled')) {
@@ -449,7 +151,6 @@ function setupEventListeners() {
             getEl('confirm-modal').style.display = 'flex';
         }
     });
-    
     document.querySelectorAll('.phone-contact').forEach(c => {
         c.addEventListener('click', () => generatePhoneAnswer(c.dataset.contact));
     });
@@ -561,6 +262,36 @@ function loseGame() {
 
 function resetGame() { window.location.reload(); }
 
+// --- Timer dengan Perubahan Warna ---
+function startTimer(val = 60) {
+    clearInterval(timerInterval);
+    let t = (val && val > 0) ? val : 60;
+    const timerEl = getEl('timer');
+    timerEl.textContent = t;
+    
+    // Reset kelas warna
+    timerEl.className = ''; 
+    
+    timerInterval = setInterval(() => {
+        t--;
+        timerEl.textContent = t;
+        
+        // Logika Warna
+        if(t <= 5) {
+            timerEl.className = 'danger'; // Merah Kedip
+        } else if(t <= 10) {
+            timerEl.className = 'warning'; // Kuning
+        }
+        
+        if(t <= 0) {
+            clearInterval(timerInterval);
+            loseGame();
+        }
+    }, 1000);
+}
+function stopTimer() { clearInterval(timerInterval); }
+
+// --- LIFELINES & Utils ---
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
     if(btn.classList.contains('used')) return;
@@ -652,21 +383,6 @@ function useFiftyFifty() {
     const wrongOpts = Array.from(document.querySelectorAll('.option')).filter(o => o.dataset.answer !== q.a);
     for(let i=0; i<Math.min(2, wrongOpts.length); i++) { wrongOpts[i].classList.add('disabled'); }
 }
-
-function startTimer(val = 60) {
-    clearInterval(timerInterval);
-    let t = (val && val > 0) ? val : 60;
-    getEl('timer').textContent = t;
-    timerInterval = setInterval(() => {
-        t--;
-        getEl('timer').textContent = t;
-        if(t <= 0) {
-            clearInterval(timerInterval);
-            loseGame();
-        }
-    }, 1000);
-}
-function stopTimer() { clearInterval(timerInterval); }
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
