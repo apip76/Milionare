@@ -116,9 +116,11 @@ function setupEventListeners() {
     getEl('start-game-btn')?.addEventListener('click', startGame);
     getEl('confirm-yes')?.addEventListener('click', processAnswer);
     getEl('confirm-no')?.addEventListener('click', () => getEl('confirm-modal').style.display = 'none');
+    
     getEl('toggle-host-btn')?.addEventListener('click', () => getEl('host-panel').classList.toggle('hidden'));
     getEl('generate-link-btn')?.addEventListener('click', generateCustomGame);
     getEl('view-scores-btn')?.addEventListener('click', viewCustomScores);
+    
     getEl('lifeline-phone')?.addEventListener('click', usePhoneLifeline);
     getEl('lifeline-poll')?.addEventListener('click', usePollLifeline);
     getEl('lifeline-5050')?.addEventListener('click', useFiftyFifty);
@@ -141,6 +143,7 @@ function setupEventListeners() {
         document.execCommand('copy');
     });
     getEl('export-excel-btn')?.addEventListener('click', exportScoresToExcel);
+    
     getEl('options-container')?.addEventListener('click', (e) => {
         const opt = e.target.closest('.option');
         if(opt && !opt.classList.contains('disabled')) {
@@ -151,6 +154,7 @@ function setupEventListeners() {
             getEl('confirm-modal').style.display = 'flex';
         }
     });
+    
     document.querySelectorAll('.phone-contact').forEach(c => {
         c.addEventListener('click', () => generatePhoneAnswer(c.dataset.contact));
     });
@@ -251,6 +255,7 @@ function loseGame() {
     let finalMoney = 0;
     if(currentQuestionIndex >= 10) finalMoney = currentLadderValues[9];
     else if(currentQuestionIndex >= 5) finalMoney = currentLadderValues[4];
+    
     let finalPoints = 0;
     if (currentQuestionIndex > 0) {
         finalPoints = pointSystem[currentQuestionIndex - 1];
