@@ -21,7 +21,7 @@ try {
 // ***** DATABASE IKLAN (SATU PANEL KANAN) *****
 // *********************************************************
 const adsList = [
-    { title: "Shopee Sale", sub: "Diskon 50%", link: "https://id.shp.ee/yV4nP7v", icon: "🛍️", color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" },
+    { title: "Shopee Sale", sub: "Diskon 50%", link: "https://collshp.com/apiparo339?share_channel_code=1&view=storefront", icon: "🛍️", color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" },
     { title: "Tokopedia", sub: "Belanja Sekarang", link: "https://tk.tokopedia.com/ZSfNbeWsu/", icon: "💚", color: "linear-gradient(to bottom, #42b549, #35953d)" },
     { title: "Flash Sale", sub: "Serba Seribu", link: "https://shopee.co.id/flash_sale", icon: "⚡", color: "linear-gradient(to bottom, #eace00, #ffd600)" },
     { title: "WIB Promo", sub: "Waktu Indo Belanja", link: "https://www.tokopedia.com/discovery/wib", icon: "📅", color: "linear-gradient(to bottom, #00aa5b, #007a41)" },
@@ -501,4 +501,5 @@ async function saveScore(name, moneyValue, pointsValue) {
         console.error("Gagal menyimpan skor: ", error);
     }
 }
+
 
