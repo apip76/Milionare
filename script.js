@@ -31,56 +31,56 @@ const adsListLeft = [
     },
     {
         "title": "Pembersih Kerak Membandel",
-        "sub": "Cek Cairan Pink / Merah Zenic Cleaner 1 liter pembersih kerak membandel di lantai westafel toilet kamar mandi paling ampuh",
+        "sub": "Cek Cairan Pink / Merah Zenic Cleaner 1 liter pembersih kerak",
         "link": "https://s.shopee.co.id/AUmKBVWLgD?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #eace00, #ffd600)"
     },
     {
         "title": "Cek Fazira Dress Gamis Polos Casual Size S-M L-XL 3L-XX",
-        "sub": "Pakaian Muslim Wanita Bahan Sabrina Anti UV dengan harga Rp136.050. Dapatkan di Shopee sekarang!",
+        "sub": "Pakaian Muslim Wanita Bahan Sabrina Anti UV dengan harga Rp136.050.",
         "link": "https://s.shopee.co.id/6fZbcUjimu?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
     },
     {
         "title": "Cek T9 DRAGON",
-        "sub": "Alat Cukur Rambut Dragon T9 Cukur Rambut Hair Clipper dengan harga Rp19.899. Dapatkan di Shopee sekarang!",
+        "sub": "Dragon T9 Cukur Rambut Hair Clipper dengan harga Rp19.899.",
         "link": "https://s.shopee.co.id/9AGwb80LQ1?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #f44336, #d32f2f)"
     },
     {
         "title": "Cek CELANA Sport DewasaTerbaru",
-        "sub": "AM/Jumbo/Pria Dewasa /Futsal/Badminton/Voli/Lari/COD/Nyaman dipakai/Unisex/BanyakPilihanWarna dengan harga Rp13.500. Dapatkan di Shopee sekarang!",
+        "sub": "AM/Jumbo/Pria Dewasa, dengan harga Rp13.500.",
         "link": "https://s.shopee.co.id/8fKg0EWR57?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
     },
     {
         "title": "Cek Reaim Jet Cleaner 130Bar",
-        "sub": "Jet Cleaner Mesin Cuci Mobil Alat Cuci Motor Dan Mobil semprotan cuci motor dengan harga Rp94.999. Dapatkan di Shopee sekarang!",
+        "sub": "Jet Cleaner Mesin Cuci Mobil Alat Cuci Motor Dan Mobil dengan harga Rp94.999.",
         "link": "https://s.shopee.co.id/2qMt3XIucE?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #eace00, #ffd600)"
     },
     {
         "title": "Cek HEADPHONE Bluetooth Gaming Headset Wireless Pro Bass P47 headset",
-        "sub": " Bluetooth p47 headset bluetooth dengan harga Rp26.990. Dapatkan di Shopee sekarang!",
+        "sub": " Bluetooth p47 headset bluetooth dengan harga Rp26.990",
         "link": "https://s.shopee.co.id/7fS8oRUDcW?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
     },
     {
         "title": "Cek 100% BESTSELLER!",
-        "sub": "Sepatu Sport Anak Laki Laki Sneaker Anak Keren Sepatu Sekolah Anak Untuk Cowok Kualitas Bagus dengan harga Rp100.000. Dapatkan di Shopee sekarang!",
+        "sub": "Sepatu Sport Anak Laki Laki Sneaker Anak Keren. Bagus dengan harga Rp100.000",
         "link": "https://s.shopee.co.id/5q0Ud66D8Y?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
     },
     {
         "title": "Cek HEADPHONE",
-        "sub": "Bluetooth Gaming Headset Wireless Pro Bass P47 headset Bluetooth p47 headset bluetooth dengan harga Rp26.990. Dapatkan di Shopee sekarang! ",
+        "sub": "Bluetooth Gaming, harga Rp26.990. Dapatkan di Shopee sekarang! ",
         "link": "https://s.shopee.co.id/gIOTctvjz?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
@@ -101,28 +101,28 @@ const adsListLeft = [
     },
     {
         "title": "Cek Dispenser Beras Otomatis & Estetik - 5kg/10kg",
-        "sub": "Wadah penyimpanan Beras Food Grade & Anti Kutu dengan harga Rp97.830. Dapatkan di Shopee sekarang! ",
+        "sub": "Wadah penyimpanan Beras Food Grade & Anti Kutu dengan harga Rp97.830.",
         "link": "https://s.shopee.co.id/804zDAzJu3?share_channel_code=1",
-        "icon": "🛍️",
+        "icon": "",
         "color": "linear-gradient(to bottom, #eace00, #ffd600)"
     },
     {
         "title": "Cek M10 Headset Bluetooth Wireless",
-        "sub": "TWS + Power Bank 3500mAh dengan harga Rp28.776. Dapatkan di Shopee sekarang!",
+        "sub": "TWS + Power Bank 3500mAh dengan harga Rp28.776.",
         "link": "https://s.shopee.co.id/1LY5Gxstav?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
     },
     {
-        "title": "Cek Jas Hujan Gamis, Mantel Hujan Wanita Muslimah Syar'i ",
-        "sub": "Bahan Tebal Elastis Kuat Anti Rembes By HANS dengan harga Rp62.183. Dapatkan di Shopee sekarang!",
+        "title": "Mantel Hujan Wanita Muslimah Syar'i",
+        "sub": "Bahan Tebal Elastis Kuat Anti Rembes By HANS dengan harga Rp62.183",
         "link": "https://s.shopee.co.id/7plZ0xJvuq?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
     },
     {
-        "title": "Cek LITTLE O Tumbler STARBUCKS Tumbler Stainley Tumbler",
-        "sub": "Stainless Steel 472ml 16oz Starbucks Tumbler Stainless Steel Polished 473ml TUMBLER STARBUCKS dengan harga Rp71.250. Dapatkan di Shopee sekarang! ",
+        "title": "STARBUCKS Tumbler Stainley Tumbler",
+        "sub": "Tumbler Stainless Steel Polished 473ml, harga Rp71.250",
         "link": "https://s.shopee.co.id/30gJG6tXL5?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #eace00, #ffd600)"
@@ -135,14 +135,14 @@ const adsListLeft = [
         "color": "linear-gradient(to bottom, #eace00, #ffd600)"
     },
     {
-        "title": "Cek Colfi Payung Lipat Otomatis Jumbo Buka Tutup Anti UV",
-        "sub": "Payung Lipat Otomatis 10 Rangka Premium Quality dengan harga Rp27.985. Dapatkan di Shopee sekarang!",
+        "title": "Payung Lipat Otomatis Jumbo Buka Tutup Anti UV",
+        "sub": "Payung Lipat Otomatis 10 Rangka Premium Quality dengan harga Rp27.985",
         "link": "https://s.shopee.co.id/9pWdOkIQeR?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
     },
     {
-        "title": "Cek 4 pcs 100 ribu kaos pria wanita terlaris/ kaos pria murah/ kaos usinex/ kaos oblong / kaos polos/ kaos harian dengan harga Rp100.000",
+        "title": "Cek 4 pcs 100 ribu kaos pria wanita terlaris, harga Rp100.000",
         "sub": "Dapatkan di Shopee sekarang!",
         "link": "https://s.shopee.co.id/10vEsXBmxp?share_channel_code=1",
         "icon": "🛍️",
@@ -150,7 +150,7 @@ const adsListLeft = [
     },
     {
         "title": "Cek VOOVA",
-        "sub": "Sandal Selop Wanita/ Sandal Indoor/Sandal Wanita Karet/Sandal Rumah/Sandal Luar Rumah dengan harga Rp27.097. Dapatkan di Shopee sekarang!",
+        "sub": "Sandal Selop Wanita, Luar Rumah dengan harga Rp27.097",
         "link": "https://s.shopee.co.id/9fDDCU9bN6?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
@@ -164,35 +164,35 @@ const adsListLeft = [
     },
     {
         "title": "Cek HCS Jas Hujan Pria dan Wanita Anti Rembes",
-        "sub": "Jas Hujan Setelan Mocca dengan harga Rp52.800. Dapatkan di Shopee sekarang!",
+        "sub": "Jas Hujan Setelan Mocca dengan harga Rp52.800",
         "link": "https://s.shopee.co.id/8V1FoQtbli?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
     },
     {
-        "title": "Cek Payung Lipat Otomatis Anti UV Buka Tutup 3 Lipat Automatic Umbrella",
-        "sub": "Premium Bahan Vinyl 2 Lapis dengan harga Rp34.100. Dapatkan di Shopee sekarang!",
+        "title": "Payung Lipat Otomatis Anti UV Buka Tutup 3 Lipat Automatic Umbrella",
+        "sub": "Premium Bahan Vinyl 2 Lapis dengan harga Rp34.100",
         "link": "https://s.shopee.co.id/1gAvftWYSc?share_channel_code=1",
-        "icon": "🛍️",
+        "icon": "",
         "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
     },
     {
         "title": "Cek JAS HUJAN GAMIS SYAR'I MUSLIMAH NYAMAN PREMIUM ANTI REMBES",
-        "sub": "BY ALSTAR dengan harga Rp87.500. Dapatkan di Shopee sekarang!",
+        "sub": "BY ALSTAR dengan harga Rp87.500",
         "link": "https://s.shopee.co.id/8zxWPOzZEW?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
     },
     {
         "title": "Cek PASHLINC Tumbler Tahan Panas Dingin 24Jam",
-        "sub": "Tumblr Premium Quality Stainless Botol Minum Aesthetic Thermos Tumbler Lucu Botol Minum 900ML and 600ML dengan harga Rp145.000. Dapatkan di Shopee sekarang!",
+        "sub": "Thermos Tumbler Lucu Botol Minum 900ML and 600ML dengan harga Rp145.000",
         "link": "https://s.shopee.co.id/7V8icfvKJI?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #9c27b0, #7b1fa2)"
     },
     {
         "title": "Cek Kipas Angin Genggam Portabel Turbo",
-        "sub": "100 Level, Angin Kencang, Super Sunyi, Bisa Diisi Ulang Type-C, Kipas Mini Tangan untuk Rumah, Kantor, Perjalanan dengan harga Rp56.000. Dapatkan di Shopee sekarang! ",
+        "sub": "100 Level, Bisa Diisi ulang, harga Rp56.000. Dapatkan di Shopee sekarang!",
         "link": "https://s.shopee.co.id/6pt1pUA38Q?share_channel_code=1",
         "icon": "🛍️",
         "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
