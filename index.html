@@ -104,16 +104,16 @@
         <div class="game-container">
             <div class="quiz-main">
                 
-                <!-- ***** AREA ATAS: SHOPEE (Kiri) & TOKOPEDIA (Kanan) ***** -->
+                <!-- ***** AREA ATAS: KIRI & KANAN DINAMIS ***** -->
                 <div class="top-bar">
                     
-                    <!-- Link Kiri (Shopee) -->
+                    <!-- IKLAN KIRI (Dinamis) -->
                     <div class="ad-space left">
-                        <a href="https://id.shp.ee/yV4nP7v" target="_blank" class="shopee-btn">
-                            <span class="shopee-icon">🛍️</span>
+                        <a id="dynamic-ad-link-left" href="#" target="_blank" class="dynamic-ad-btn">
+                            <span id="dynamic-ad-icon-left" class="shopee-icon">✨</span>
                             <div class="ad-text">
-                                <span class="promo-title">Shopee</span>
-                                <span class="promo-sub">Cek Promo</span>
+                                <span id="dynamic-ad-title-left" class="promo-title">Loading...</span>
+                                <span id="dynamic-ad-sub-left" class="promo-sub">...</span>
                             </div>
                         </a>
                     </div>
@@ -121,18 +121,18 @@
                     <!-- Timer (Tengah) -->
                     <div id="timer">60</div>
 
-                    <!-- Link Kanan (Tokopedia) -->
+                    <!-- IKLAN KANAN (Dinamis - BARU) -->
                     <div class="ad-space right">
-                        <a href="https://tk.tokopedia.com/ZSfNbeWsu/" target="_blank" class="tokopedia-btn">
-                            <span class="shopee-icon">💚</span> <!-- Ikon Hati Hijau/Tas -->
+                        <a id="dynamic-ad-link-right" href="#" target="_blank" class="dynamic-ad-btn">
+                            <span id="dynamic-ad-icon-right" class="shopee-icon">🎁</span>
                             <div class="ad-text">
-                                <span class="promo-title">Tokopedia</span>
-                                <span class="promo-sub">Belanja Sekarang</span>
+                                <span id="dynamic-ad-title-right" class="promo-title">Loading...</span>
+                                <span id="dynamic-ad-sub-right" class="promo-sub">...</span>
                             </div>
                         </a>
                     </div>
                 </div>
-                <!-- ******************************************************** -->
+                <!-- ******************************************* -->
 
                 <div class="qa-container">
                     <div id="question-container">
@@ -187,8 +187,6 @@
             </div>
         </div>
     </div>
-
-    <!-- AREA BAWAH BERSIH (TIDAK ADA IKLAN) -->
 
     <audio id="opening-audio" src="opening.mp3"></audio>
     <audio id="bg-audio" src="musik.mp3" loop></audio>
