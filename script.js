@@ -17,24 +17,74 @@ try {
     db = getFirestore(app);
 } catch (e) { console.error("Firebase Init Error:", e); }
 
-// --- DATA HADIAH ---
+// *********************************************************
+// ***** PANDUAN EDIT IKLAN (KIRI & KANAN) DI SINI *****
+// *********************************************************
+
+// 1. DAFTAR IKLAN KIRI (Shopee, dll)
+const adsListLeft = [
+    {
+        title: "Shopee Sale",
+        sub: "Diskon 50%",
+        link: "https://id.shp.ee/yV4nP7v", // Link Affiliate Anda
+        icon: "🛍️",
+        color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" // Oranye
+    },
+    {
+        title: "Flash Sale",
+        sub: "Serba Seribu",
+        link: "https://shopee.co.id/flash_sale",
+        icon: "⚡",
+        color: "linear-gradient(to bottom, #eace00, #ffd600)" // Kuning
+    },
+    {
+        title: "Gratis Ongkir",
+        sub: "Klaim Voucher",
+        link: "https://shopee.co.id/m/gratis-ongkir",
+        icon: "🚚",
+        color: "linear-gradient(to bottom, #00bfa5, #00897b)" // Hijau Tosca
+    }
+];
+
+// 2. DAFTAR IKLAN KANAN (Tokopedia, dll)
+const adsListRight = [
+    {
+        title: "Tokopedia",
+        sub: "Belanja Sekarang",
+        link: "https://tk.tokopedia.com/ZSfNbeWsu/", // Link Affiliate Anda
+        icon: "💚",
+        color: "linear-gradient(to bottom, #42b549, #35953d)" // Hijau Tokped
+    },
+    {
+        title: "WIB Promo",
+        sub: "Waktu Indo Belanja",
+        link: "https://www.tokopedia.com/discovery/wib",
+        icon: "📅",
+        color: "linear-gradient(to bottom, #00aa5b, #007a41)" // Hijau Tua
+    },
+    {
+        title: "Elektronik",
+        sub: "Diskon Gadget",
+        link: "https://www.tokopedia.com/p/handphone-tablet",
+        icon: "📱",
+        color: "linear-gradient(to bottom, #2196f3, #1565c0)" // Biru
+    }
+];
+
+// Variabel Counter
+let indexLeft = 0;
+let indexRight = 0;
+
+// *********************************************************
+
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
 const prizeLadderValues_Mobile = [50, 125, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
-
-// --- DATA POIN (0-100) - Rumus 4, 7, 9 ---
-const pointSystem = [
-    4, 8, 12, 16, 20,      // Lvl 1-5 (@4)
-    27, 34, 41, 48, 55,    // Lvl 6-10 (@7)
-    64, 73, 82, 91, 100    // Lvl 11-15 (@9)
-];
+const pointSystem = [4, 8, 12, 16, 20, 27, 34, 41, 48, 55, 64, 73, 82, 91, 100];
 
 let currentLadderValues = [];
 let currentLadderDisplay = [];
 let deviceType = "PC"; 
-
-// Data Mentah untuk Excel
 let rawLeaderboardData = []; 
-
 let playerName = "", currentQuestions = [], currentQuestionIndex = 0, currentScore = 0;
 let timerInterval, dialInterval, customGameId = null, selectedOption = null;
 
@@ -43,7 +93,62 @@ const getEl = (id) => document.getElementById(id);
 window.addEventListener('DOMContentLoaded', () => {
     checkURLHash();
     setupEventListeners();
+    startAdRotation(); // Mulai putaran iklan
 });
+
+// --- FUNGSI ROTASI IKLAN (DUAL SIDE) ---
+function startAdRotation() {
+    // Inisialisasi Tampilan Awal
+    updateAdSide('left', 0);
+    updateAdSide('right', 0);
+
+    // Putar setiap 4 detik
+    setInterval(() => {
+        // Update Index
+        indexLeft = (indexLeft + 1) % adsListLeft.length;
+        indexRight = (indexRight + 1) % adsListRight.length;
+
+        // Update Tampilan dengan Animasi
+        animateAdUpdate('left', indexLeft);
+        animateAdUpdate('right', indexRight);
+        
+    }, 4000); // Ganti angka 4000 untuk mengubah kecepatan (ms)
+}
+
+function animateAdUpdate(side, index) {
+    const btn = getEl(`dynamic-ad-link-${side}`);
+    if(!btn) return;
+
+    // 1. Fade Out
+    btn.classList.add('fade-out');
+    
+    // 2. Ganti Konten setelah 0.5s (saat opacity 0)
+    setTimeout(() => {
+        updateAdSide(side, index);
+        // 3. Fade In
+        btn.classList.remove('fade-out');
+    }, 500);
+}
+
+function updateAdSide(side, index) {
+    // Pilih list yang benar
+    const list = (side === 'left') ? adsListLeft : adsListRight;
+    const ad = list[index];
+
+    // Ambil elemen
+    const btn = getEl(`dynamic-ad-link-${side}`);
+    const title = getEl(`dynamic-ad-title-${side}`);
+    const sub = getEl(`dynamic-ad-sub-${side}`);
+    const icon = getEl(`dynamic-ad-icon-${side}`);
+
+    if(btn && title && sub && icon && ad) {
+        btn.href = ad.link;
+        btn.style.background = ad.color; 
+        title.textContent = ad.title;
+        sub.textContent = ad.sub;
+        icon.textContent = ad.icon;
+    }
+}
 
 async function checkURLHash() {
     const hash = window.location.hash.substring(1);
@@ -75,15 +180,12 @@ function setupEventListeners() {
     getEl('start-game-btn')?.addEventListener('click', startGame);
     getEl('confirm-yes')?.addEventListener('click', processAnswer);
     getEl('confirm-no')?.addEventListener('click', () => getEl('confirm-modal').style.display = 'none');
-    
     getEl('toggle-host-btn')?.addEventListener('click', () => getEl('host-panel').classList.toggle('hidden'));
     getEl('generate-link-btn')?.addEventListener('click', generateCustomGame);
     getEl('view-scores-btn')?.addEventListener('click', viewCustomScores);
-    
     getEl('lifeline-phone')?.addEventListener('click', usePhoneLifeline);
     getEl('lifeline-poll')?.addEventListener('click', usePollLifeline);
     getEl('lifeline-5050')?.addEventListener('click', useFiftyFifty);
-    
     getEl('close-phone-modal-btn')?.addEventListener('click', () => {
         getEl('phone-modal').style.display = 'none';
         clearInterval(dialInterval);
@@ -102,7 +204,6 @@ function setupEventListeners() {
         document.execCommand('copy');
     });
     getEl('export-excel-btn')?.addEventListener('click', exportScoresToExcel);
-    
     getEl('options-container')?.addEventListener('click', (e) => {
         const opt = e.target.closest('.option');
         if(opt && !opt.classList.contains('disabled')) {
@@ -113,7 +214,6 @@ function setupEventListeners() {
             getEl('confirm-modal').style.display = 'flex';
         }
     });
-    
     document.querySelectorAll('.phone-contact').forEach(c => {
         c.addEventListener('click', () => generatePhoneAnswer(c.dataset.contact));
     });
@@ -122,7 +222,6 @@ function setupEventListeners() {
 async function startGame() {
     playerName = getEl('player-name-input').value.trim();
     if (!playerName) return alert("Nama wajib diisi!");
-    
     getEl('start-game-btn').disabled = true;
     getEl('start-game-btn').textContent = "Memuat...";
 
@@ -133,7 +232,6 @@ async function startGame() {
         deviceType = "PC";
         currentLadderValues = prizeLadderValues_Full;
     }
-    // Update display
     currentLadderDisplay = currentLadderValues.map(v => "Rp " + v.toLocaleString('id-ID'));
     
     if (!customGameId) {
@@ -156,13 +254,10 @@ async function startGame() {
     currentQuestionIndex = 0;
     currentScore = 0;
     document.querySelectorAll('.lifeline').forEach(l => l.classList.remove('used'));
-    
     getEl('start-screen').classList.remove('active');
     getEl('game-screen').classList.add('active');
-    
     getEl('opening-audio').play();
     setTimeout(() => getEl('bg-audio').play(), 3000);
-    
     buildLadder(); 
     showQuestion();
 }
@@ -170,13 +265,10 @@ async function startGame() {
 function showQuestion() {
     const q = currentQuestions[currentQuestionIndex];
     getEl('question-text').textContent = q.q;
-    
     const container = getEl('options-container');
     container.innerHTML = "";
-    
     let opts = q.o.split('\\');
     opts = shuffleArray(opts);
-    
     opts.forEach((txt, idx) => {
         const char = String.fromCharCode(65 + idx);
         const div = document.createElement('div');
@@ -185,7 +277,6 @@ function showQuestion() {
         div.innerHTML = `<span>${char}:</span> <p>${txt}</p>`;
         container.appendChild(div);
     });
-    
     updateLadder(); 
     startTimer();
 }
@@ -193,18 +284,14 @@ function showQuestion() {
 function processAnswer() {
     getEl('confirm-modal').style.display = 'none';
     if(!selectedOption) return;
-    
     const ans = selectedOption.dataset.answer;
     const correct = currentQuestions[currentQuestionIndex].a;
-    
     document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
-    
     if(ans === correct) {
         selectedOption.classList.add('correct');
         getEl('correct-audio').play();
         currentScore = currentLadderValues[currentQuestionIndex]; 
         currentQuestionIndex++;
-        
         if(currentQuestionIndex >= 15) winGame();
         else setTimeout(showQuestion, 2000);
     } else {
@@ -219,59 +306,44 @@ function processAnswer() {
 
 function winGame() {
     alert(`SELAMAT! Anda menang ${currentLadderDisplay[14]}`); 
-    saveScore(playerName, currentScore, 100); // Poin Maksimal
+    saveScore(playerName, currentScore, 100); 
     setTimeout(resetGame, 2000);
 }
 
 function loseGame() {
     let finalMoney = 0;
-    // Safety Net (Hanya Uang)
     if(currentQuestionIndex >= 10) finalMoney = currentLadderValues[9];
     else if(currentQuestionIndex >= 5) finalMoney = currentLadderValues[4];
-    
-    // Poin (Sesuai Pencapaian, Tidak Turun)
     let finalPoints = 0;
     if (currentQuestionIndex > 0) {
-        // Ambil poin level sebelumnya (index-1)
         finalPoints = pointSystem[currentQuestionIndex - 1];
     }
-    
     alert(`Game Over! Anda membawa pulang: Rp ${finalMoney.toLocaleString('id-ID')}`);
     saveScore(playerName, finalMoney, finalPoints);
     setTimeout(resetGame, 2000);
 }
 
-function resetGame() {
-    window.location.reload();
-}
+function resetGame() { window.location.reload(); }
 
-// --- LIFELINES ---
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
     if(btn.classList.contains('used')) return;
     btn.classList.add('used');
     stopTimer();
-
     getEl('poll-modal').style.display = 'flex';
-    
     const q = currentQuestions[currentQuestionIndex];
     const opts = document.querySelectorAll('.option:not(.disabled)');
     let correctOpt;
     opts.forEach(o => { if(o.dataset.answer === q.a) correctOpt = o; });
-    
     const total = 100;
     const correctPercent = Math.floor(Math.random() * 30) + 40; 
     let remain = total - correctPercent;
-    
     const container = getEl('poll-chart-container');
     container.innerHTML = "";
-    
     let results = [];
     opts.forEach(o => {
         let p = 0;
-        if(o === correctOpt) {
-            p = correctPercent;
-        } else {
+        if(o === correctOpt) { p = correctPercent; } else {
             const chunk = Math.floor(Math.random() * remain);
             p = chunk;
             remain -= chunk;
@@ -279,21 +351,14 @@ function usePollLifeline() {
         const prefix = o.querySelector('span').textContent.replace(':', '');
         results.push({ prefix: prefix, percent: p });
     });
-
     results.forEach(res => {
         const wrapper = document.createElement('div');
         wrapper.className = 'poll-bar-wrapper';
-        wrapper.innerHTML = `
-            <div class="poll-bar" style="height: 0%;" data-percent="${res.percent}"></div>
-            <div class="poll-label">${res.prefix}<br><small>${res.percent}%</small></div>
-        `;
+        wrapper.innerHTML = `<div class="poll-bar" style="height: 0%;" data-percent="${res.percent}"></div><div class="poll-label">${res.prefix}<br><small>${res.percent}%</small></div>`;
         container.appendChild(wrapper);
     });
-
     setTimeout(() => {
-        container.querySelectorAll('.poll-bar').forEach(bar => {
-            bar.style.height = bar.dataset.percent + "%";
-        });
+        container.querySelectorAll('.poll-bar').forEach(bar => { bar.style.height = bar.dataset.percent + "%"; });
     }, 100); 
 }
 
@@ -302,7 +367,6 @@ function usePhoneLifeline() {
     if(btn.classList.contains('used')) return;
     btn.classList.add('used');
     stopTimer();
-    
     getEl('phone-contact-grid').classList.remove('hidden');
     getEl('phone-dialing-screen').classList.add('hidden');
     getEl('phone-response-area').classList.add('hidden');
@@ -312,11 +376,9 @@ function usePhoneLifeline() {
 function generatePhoneAnswer(type) {
     getEl('phone-contact-grid').classList.add('hidden');
     getEl('phone-dialing-screen').classList.remove('hidden');
-    
     let time = 10;
     const timerSpan = getEl('dialing-timer');
     timerSpan.textContent = time;
-    
     clearInterval(dialInterval);
     dialInterval = setInterval(() => {
         time--;
@@ -331,24 +393,18 @@ function generatePhoneAnswer(type) {
 function showPhoneResult(type) {
     getEl('phone-dialing-screen').classList.add('hidden');
     getEl('phone-response-area').classList.remove('hidden');
-    
     const q = currentQuestions[currentQuestionIndex];
     const correct = q.a;
     const isCorrect = Math.random() < (type === 'expert' ? 0.9 : 0.6);
-    
     let ans = correct;
     if(!isCorrect) {
-        const wrongOpts = Array.from(document.querySelectorAll('.option'))
-            .map(o => o.dataset.answer)
-            .filter(a => a !== correct);
+        const wrongOpts = Array.from(document.querySelectorAll('.option')).map(o => o.dataset.answer).filter(a => a !== correct);
         ans = wrongOpts[Math.floor(Math.random() * wrongOpts.length)];
     }
-    
     let prefix = "?";
     document.querySelectorAll('.option').forEach(o => {
         if(o.dataset.answer === ans) prefix = o.querySelector('span').textContent;
     });
-    
     getEl('phone-response-text').innerHTML = `Jawabannya mungkin <strong>${prefix} ${ans}</strong>`;
 }
 
@@ -356,17 +412,11 @@ function useFiftyFifty() {
     const btn = getEl('lifeline-5050');
     if(btn.classList.contains('used')) return;
     btn.classList.add('used');
-    
     const q = currentQuestions[currentQuestionIndex];
-    const wrongOpts = Array.from(document.querySelectorAll('.option'))
-        .filter(o => o.dataset.answer !== q.a);
-    
-    for(let i=0; i<Math.min(2, wrongOpts.length); i++) {
-        wrongOpts[i].classList.add('disabled');
-    }
+    const wrongOpts = Array.from(document.querySelectorAll('.option')).filter(o => o.dataset.answer !== q.a);
+    for(let i=0; i<Math.min(2, wrongOpts.length); i++) { wrongOpts[i].classList.add('disabled'); }
 }
 
-// --- Utils ---
 function startTimer(val = 60) {
     clearInterval(timerInterval);
     let t = (val && val > 0) ? val : 60;
@@ -454,8 +504,7 @@ async function viewCustomScores() {
     if(!id) return;
     const tbody = getEl('score-table-body');
     tbody.innerHTML = "Loading...";
-    rawLeaderboardData = []; // Reset data Excel
-
+    rawLeaderboardData = []; 
     try {
         const q = query(collection(db, `leaderboard_${id}`), orderBy('skor', 'desc'), limit(50));
         const snap = await getDocs(q);
@@ -463,25 +512,8 @@ async function viewCustomScores() {
         snap.forEach((d, i) => {
             const data = d.data();
             const date = data.tanggal ? data.tanggal.toDate().toLocaleDateString('id-ID') : '-';
-            
-            // Siapkan data Excel
-            rawLeaderboardData.push({
-                Peringkat: i + 1,
-                Nama: data.nama,
-                Uang: data.skor,
-                Nilai: data.poin || 0,
-                Perangkat: data.device || 'PC',
-                Tanggal: date
-            });
-
-            tbody.innerHTML += `<tr>
-                <td>${i+1}</td>
-                <td>${data.nama}</td>
-                <td>Rp ${data.skor.toLocaleString('id-ID')}</td>
-                <td>${data.poin || 0}</td>
-                <td>${data.device || '-'}</td>
-                <td>${date}</td>
-            </tr>`;
+            rawLeaderboardData.push({ Peringkat: i + 1, Nama: data.nama, Uang: data.skor, Nilai: data.poin || 0, Perangkat: data.device || 'PC', Tanggal: date });
+            tbody.innerHTML += `<tr><td>${i+1}</td><td>${data.nama}</td><td>Rp ${data.skor.toLocaleString('id-ID')}</td><td>${data.poin || 0}</td><td>${data.device || '-'}</td><td>${date}</td></tr>`;
         });
         getEl('score-view-modal').style.display = 'flex';
     } catch(e) { alert("Gagal ambil skor."); }
@@ -490,7 +522,6 @@ async function viewCustomScores() {
 function exportScoresToExcel() {
     if (!window.XLSX) return alert("Library Excel belum siap. Refresh halaman.");
     if (rawLeaderboardData.length === 0) return alert("Belum ada data.");
-    
     const ws = window.XLSX.utils.json_to_sheet(rawLeaderboardData);
     const wb = window.XLSX.utils.book_new();
     window.XLSX.utils.book_append_sheet(wb, ws, "Leaderboard");
@@ -498,15 +529,14 @@ function exportScoresToExcel() {
     window.XLSX.writeFile(wb, `Skor_${quizId}.xlsx`);
 }
 
-// --- PERBAIKAN v26: Terima Poin Terpisah ---
 async function saveScore(name, moneyValue, pointsValue) {
     console.log(`Simpan: ${name} | Rp ${moneyValue} | Poin ${pointsValue}`);
     try {
         const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
         await addDoc(collection(db, leaderboardCollection), {
             nama: name,
-            skor: moneyValue,  // Uang (mengikuti safety net)
-            poin: pointsValue, // Nilai (mengikuti level tertinggi)
+            skor: moneyValue,  
+            poin: pointsValue, 
             device: deviceType,
             tanggal: serverTimestamp()
         });
@@ -514,3 +544,26 @@ async function saveScore(name, moneyValue, pointsValue) {
         console.error("Gagal menyimpan skor: ", error);
     }
 }
+```
+
+### 3. Panduan Mengganti Link (PENTING)
+
+Buka file `script.js` Anda. Di bagian atas (baris 30-60), Anda akan melihat daftar seperti ini. Ganti URL di bagian `link: "..."`.
+
+```javascript
+const adsListLeft = [
+    {
+        title: "Produk A",
+        link: "https://link-shopee-anda-1.com", // <-- GANTI INI
+        // ...
+    },
+    // ... tambah link lain ...
+];
+
+const adsListRight = [
+    {
+        title: "Produk B",
+        link: "https://link-tokopedia-anda-1.com", // <-- GANTI INI
+        // ...
+    }
+];
