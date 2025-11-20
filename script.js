@@ -18,57 +18,141 @@ try {
 } catch (e) { console.error("Firebase Init Error:", e); }
 
 // *********************************************************
-// ***** DATABASE IKLAN (KIRI & KANAN) *****
+// ***** DATABASE IKLAN (KIRI & KANAN) - 16 KATEGORI *****
 // *********************************************************
 
-// 1. DAFTAR IKLAN KIRI (Shopee, dll)
+// 1. DAFTAR IKLAN KIRI (Shopee Style - Nuansa Hangat)
 const adsListLeft = [
-    {
-        title: "Shopee Sale",
-        sub: "Diskon 50%",
-        link: "https://id.shp.ee/yV4nP7v", 
-        icon: "🛍️",
-        color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" 
-    },
-    {
-        title: "Flash Sale",
-        sub: "Serba Seribu",
-        link: "https://shopee.co.id/flash_sale",
-        icon: "⚡",
-        color: "linear-gradient(to bottom, #eace00, #ffd600)"
-    },
-    {
-        title: "Gratis Ongkir",
-        sub: "Klaim Voucher",
-        link: "https://shopee.co.id/m/gratis-ongkir",
-        icon: "🚚",
-        color: "linear-gradient(to bottom, #00bfa5, #00897b)" 
-    }
+    // 1. Rumah Tangga
+    { title: "Rumah Tangga", sub: "Dekorasi Estetik", icon: "🏠", color: "linear-gradient(to bottom, #ff5722, #e64a19)", 
+      link: "https://shopee.co.id/rumah-tangga" }, // <--- GANTI LINK
+    
+    // 2. Audio, Kamera & Elektronik
+    { title: "Elektronik", sub: "Kamera & Audio", icon: "📷", color: "linear-gradient(to bottom, #ff9800, #f57c00)", 
+      link: "https://shopee.co.id/elektronik" }, // <--- GANTI LINK
+    
+    // 3. Dapur
+    { title: "Alat Dapur", sub: "Masak Jadi Mudah", icon: "🍳", color: "linear-gradient(to bottom, #ffc107, #ffb300)", 
+      link: "https://shopee.co.id/dapur" }, // <--- GANTI LINK
+    
+    // 4. Fashion Anak & Bayi
+    { title: "Fashion Anak", sub: "Baju Lucu Murah", icon: "👶", color: "linear-gradient(to bottom, #ff7043, #f4511e)", 
+      link: "https://shopee.co.id/fashion-anak" }, // <--- GANTI LINK
+    
+    // 5. Fashion Muslim
+    { title: "Busana Muslim", sub: "Tren Hijab Kekinian", icon: "🧕", color: "linear-gradient(to bottom, #d84315, #bf360c)", 
+      link: "https://shopee.co.id/fashion-muslim" }, // <--- GANTI LINK
+    
+    // 6. Fashion Pria
+    { title: "Fashion Pria", sub: "Kemeja & Kaos", icon: "👕", color: "linear-gradient(to bottom, #f44336, #d32f2f)", 
+      link: "https://shopee.co.id/fashion-pria" }, // <--- GANTI LINK
+    
+    // 7. Fashion Wanita
+    { title: "Fashion Wanita", sub: "OOTD Hits", icon: "👗", color: "linear-gradient(to bottom, #e91e63, #c2185b)", 
+      link: "https://shopee.co.id/fashion-wanita" }, // <--- GANTI LINK
+    
+    // 8. Film dan Musik
+    { title: "Film & Musik", sub: "Album Original", icon: "🎵", color: "linear-gradient(to bottom, #9c27b0, #7b1fa2)", 
+      link: "https://shopee.co.id/film-musik" }, // <--- GANTI LINK
+    
+    // 9. Gaming
+    { title: "Gaming Zone", sub: "Konsol & Aksesoris", icon: "🎮", color: "linear-gradient(to bottom, #673ab7, #512da8)", 
+      link: "https://shopee.co.id/gaming" }, // <--- GANTI LINK
+    
+    // 10. Handphone dan Tablet
+    { title: "HP & Tablet", sub: "Gadget Terbaru", icon: "📱", color: "linear-gradient(to bottom, #3f51b5, #303f9f)", 
+      link: "https://shopee.co.id/handphone" }, // <--- GANTI LINK
+    
+    // 11. Ibu dan Bayi
+    { title: "Ibu & Bayi", sub: "Susu & Popok", icon: "🍼", color: "linear-gradient(to bottom, #2196f3, #1976d2)", 
+      link: "https://shopee.co.id/ibu-bayi" }, // <--- GANTI LINK
+    
+    // 12. Kecantikan
+    { title: "Kecantikan", sub: "Skincare Glowing", icon: "💄", color: "linear-gradient(to bottom, #e040fb, #d500f9)", 
+      link: "https://shopee.co.id/kecantikan" }, // <--- GANTI LINK
+    
+    // 13. Kesehatan
+    { title: "Kesehatan", sub: "Vitamin & Suplemen", icon: "💊", color: "linear-gradient(to bottom, #009688, #00796b)", 
+      link: "https://shopee.co.id/kesehatan" }, // <--- GANTI LINK
+    
+    // 14. Komputer dan Laptop
+    { title: "Komputer", sub: "Laptop Kerja/Gaming", icon: "💻", color: "linear-gradient(to bottom, #4caf50, #388e3c)", 
+      link: "https://shopee.co.id/komputer" }, // <--- GANTI LINK
+    
+    // 15. Mainan dan Hobi
+    { title: "Mainan & Hobi", sub: "Koleksi Action Figure", icon: "🤖", color: "linear-gradient(to bottom, #8bc34a, #689f38)", 
+      link: "https://shopee.co.id/mainan" }, // <--- GANTI LINK
+    
+    // 16. Dan Lain-lain
+    { title: "Serba Serbi", sub: "Produk Unik", icon: "🎁", color: "linear-gradient(to bottom, #cddc39, #afb42b)", 
+      link: "https://shopee.co.id/serba-serbi" }  // <--- GANTI LINK
 ];
 
-// 2. DAFTAR IKLAN KANAN (Tokopedia, dll)
+// 2. DAFTAR IKLAN KANAN (Tokopedia Style - Nuansa Hijau/Biru/Cool)
 const adsListRight = [
-    {
-        title: "Tokopedia",
-        sub: "Belanja Sekarang",
-        link: "https://tk.tokopedia.com/ZSfNbeWsu/", 
-        icon: "💚",
-        color: "linear-gradient(to bottom, #42b549, #35953d)" 
-    },
-    {
-        title: "WIB Promo",
-        sub: "Waktu Indo Belanja",
-        link: "https://www.tokopedia.com/discovery/wib",
-        icon: "📅",
-        color: "linear-gradient(to bottom, #00aa5b, #007a41)" 
-    },
-    {
-        title: "Elektronik",
-        sub: "Diskon Gadget",
-        link: "https://www.tokopedia.com/p/handphone-tablet",
-        icon: "📱",
-        color: "linear-gradient(to bottom, #2196f3, #1565c0)" 
-    }
+    // 1. Rumah Tangga
+    { title: "Home Living", sub: "Nyaman di Rumah", icon: "🛌", color: "linear-gradient(to bottom, #42b549, #2e7d32)", 
+      link: "https://tokopedia.com/home-living" }, // <--- GANTI LINK
+    
+    // 2. Audio, Kamera & Elektronik
+    { title: "Audio & Cam", sub: "Jernih & Tajam", icon: "🎧", color: "linear-gradient(to bottom, #00aa5b, #007a41)", 
+      link: "https://tokopedia.com/audio" }, // <--- GANTI LINK
+    
+    // 3. Dapur
+    { title: "Chef Dapur", sub: "Peralatan Premium", icon: "🔪", color: "linear-gradient(to bottom, #0097a7, #006064)", 
+      link: "https://tokopedia.com/dapur" }, // <--- GANTI LINK
+    
+    // 4. Fashion Anak & Bayi
+    { title: "Kids Style", sub: "Fashion Si Kecil", icon: "🧸", color: "linear-gradient(to bottom, #039be5, #01579b)", 
+      link: "https://tokopedia.com/fashion-anak" }, // <--- GANTI LINK
+    
+    // 5. Fashion Muslim
+    { title: "Moslem Wear", sub: "Elegan & Syari", icon: "🕌", color: "linear-gradient(to bottom, #1e88e5, #0d47a1)", 
+      link: "https://tokopedia.com/fashion-muslim" }, // <--- GANTI LINK
+    
+    // 6. Fashion Pria
+    { title: "Men's Look", sub: "Maskulin & Trendy", icon: "👞", color: "linear-gradient(to bottom, #3949ab, #1a237e)", 
+      link: "https://tokopedia.com/fashion-pria" }, // <--- GANTI LINK
+    
+    // 7. Fashion Wanita
+    { title: "Women's Chic", sub: "Cantik Tiap Hari", icon: "👠", color: "linear-gradient(to bottom, #5e35b1, #311b92)", 
+      link: "https://tokopedia.com/fashion-wanita" }, // <--- GANTI LINK
+    
+    // 8. Film dan Musik
+    { title: "Entertainment", sub: "Voucher Streaming", icon: "🎬", color: "linear-gradient(to bottom, #8e24aa, #4a148c)", 
+      link: "https://tokopedia.com/entertainment" }, // <--- GANTI LINK
+    
+    // 9. Gaming
+    { title: "Pro Gamers", sub: "Top Up & Voucher", icon: "🕹️", color: "linear-gradient(to bottom, #d81b60, #880e4f)", 
+      link: "https://tokopedia.com/gaming" }, // <--- GANTI LINK
+    
+    // 10. Handphone dan Tablet
+    { title: "Smartphone", sub: "Android & iOS", icon: "📲", color: "linear-gradient(to bottom, #e53935, #b71c1c)", 
+      link: "https://tokopedia.com/handphone" }, // <--- GANTI LINK
+    
+    // 11. Ibu dan Bayi
+    { title: "Mom & Baby", sub: "Perlengkapan Bayi", icon: "🤰", color: "linear-gradient(to bottom, #fb8c00, #e65100)", 
+      link: "https://tokopedia.com/ibu-bayi" }, // <--- GANTI LINK
+    
+    // 12. Kecantikan
+    { title: "Beauty Bar", sub: "Makeup Original", icon: "💅", color: "linear-gradient(to bottom, #fdd835, #fbc02d)", 
+      link: "https://tokopedia.com/kecantikan" }, // <--- GANTI LINK
+    
+    // 13. Kesehatan
+    { title: "Zona Sehat", sub: "Obat & Alkes", icon: "🩺", color: "linear-gradient(to bottom, #7cb342, #33691e)", 
+      link: "https://tokopedia.com/kesehatan" }, // <--- GANTI LINK
+    
+    // 14. Komputer dan Laptop
+    { title: "PC & Laptop", sub: "Rakitan & Aksesoris", icon: "🖱️", color: "linear-gradient(to bottom, #00897b, #004d40)", 
+      link: "https://tokopedia.com/komputer" }, // <--- GANTI LINK
+    
+    // 15. Mainan dan Hobi
+    { title: "Hobbies", sub: "Diecast & Gundam", icon: "🎨", color: "linear-gradient(to bottom, #039be5, #01579b)", 
+      link: "https://tokopedia.com/hobi" }, // <--- GANTI LINK
+    
+    // 16. Dan Lain-lain
+    { title: "Everything Else", sub: "Produk Lainnya", icon: "🔍", color: "linear-gradient(to bottom, #546e7a, #263238)", 
+      link: "https://tokopedia.com/lain-lain" }  // <--- GANTI LINK
 ];
 
 let indexLeft = 0;
@@ -100,13 +184,13 @@ function startAdRotation() {
     updateAdSide('left', 0);
     updateAdSide('right', 0);
 
-    // Ubah interval di sini (ms)
+    // Ganti iklan tiap 10 detik
     setInterval(() => {
         indexLeft = (indexLeft + 1) % adsListLeft.length;
         indexRight = (indexRight + 1) % adsListRight.length;
         animateAdUpdate('left', indexLeft);
         animateAdUpdate('right', indexRight);
-    }, 10000); // <--- GANTI JADI 10000 (10 Detik)
+    }, 10000); 
 }
 
 function animateAdUpdate(side, index) {
@@ -309,20 +393,17 @@ function processAnswer() {
 
 function winGame() {
     alert(`SELAMAT! Anda menang ${currentLadderDisplay[14]}`); 
-    saveScore(playerName, currentScore, 100); // Poin Maksimal
+    saveScore(playerName, currentScore, 100); 
     setTimeout(resetGame, 2000);
 }
 
 function loseGame() {
     let finalMoney = 0;
-    // Safety Net (Hanya Uang)
     if(currentQuestionIndex >= 10) finalMoney = currentLadderValues[9];
     else if(currentQuestionIndex >= 5) finalMoney = currentLadderValues[4];
     
-    // Poin (Sesuai Pencapaian, Tidak Turun)
     let finalPoints = 0;
     if (currentQuestionIndex > 0) {
-        // Ambil poin level sebelumnya (index-1)
         finalPoints = pointSystem[currentQuestionIndex - 1];
     }
     
@@ -331,11 +412,8 @@ function loseGame() {
     setTimeout(resetGame, 2000);
 }
 
-function resetGame() {
-    window.location.reload();
-}
+function resetGame() { window.location.reload(); }
 
-// --- LIFELINES ---
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
     if(btn.classList.contains('used')) return;
@@ -552,25 +630,8 @@ async function viewCustomScores() {
         snap.forEach((d, i) => {
             const data = d.data();
             const date = data.tanggal ? data.tanggal.toDate().toLocaleDateString('id-ID') : '-';
-            
-            // Siapkan data Excel
-            rawLeaderboardData.push({
-                Peringkat: i + 1,
-                Nama: data.nama,
-                Uang: data.skor,
-                Nilai: data.poin || 0,
-                Perangkat: data.device || 'PC',
-                Tanggal: date
-            });
-
-            tbody.innerHTML += `<tr>
-                <td>${i+1}</td>
-                <td>${data.nama}</td>
-                <td>Rp ${data.skor.toLocaleString('id-ID')}</td>
-                <td>${data.poin || 0}</td>
-                <td>${data.device || '-'}</td>
-                <td>${date}</td>
-            </tr>`;
+            rawLeaderboardData.push({ Peringkat: i + 1, Nama: data.nama, Uang: data.skor, Nilai: data.poin || 0, Perangkat: data.device || 'PC', Tanggal: date });
+            tbody.innerHTML += `<tr><td>${i+1}</td><td>${data.nama}</td><td>Rp ${data.skor.toLocaleString('id-ID')}</td><td>${data.poin || 0}</td><td>${data.device || '-'}</td><td>${date}</td></tr>`;
         });
         getEl('score-view-modal').style.display = 'flex';
     } catch(e) { alert("Gagal ambil skor."); }
@@ -579,7 +640,6 @@ async function viewCustomScores() {
 function exportScoresToExcel() {
     if (!window.XLSX) return alert("Library Excel belum siap. Refresh halaman.");
     if (rawLeaderboardData.length === 0) return alert("Belum ada data.");
-    
     const ws = window.XLSX.utils.json_to_sheet(rawLeaderboardData);
     const wb = window.XLSX.utils.book_new();
     window.XLSX.utils.book_append_sheet(wb, ws, "Leaderboard");
@@ -587,15 +647,14 @@ function exportScoresToExcel() {
     window.XLSX.writeFile(wb, `Skor_${quizId}.xlsx`);
 }
 
-// --- MODIFIKASI v26: Terima Poin Terpisah ---
 async function saveScore(name, moneyValue, pointsValue) {
     console.log(`Simpan: ${name} | Rp ${moneyValue} | Poin ${pointsValue}`);
     try {
         const leaderboardCollection = customGameId ? `leaderboard_${customGameId}` : "leaderboard";
         await addDoc(collection(db, leaderboardCollection), {
             nama: name,
-            skor: moneyValue,  // Uang (mengikuti safety net)
-            poin: pointsValue, // Nilai (mengikuti level tertinggi)
+            skor: moneyValue,  
+            poin: pointsValue, 
             device: deviceType,
             tanggal: serverTimestamp()
         });
