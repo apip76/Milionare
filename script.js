@@ -165,12 +165,15 @@ function setupEventListeners() {
     getEl('start-game-btn')?.addEventListener('click', startGame);
     getEl('confirm-yes')?.addEventListener('click', processAnswer);
     getEl('confirm-no')?.addEventListener('click', () => getEl('confirm-modal').style.display = 'none');
+    
     getEl('toggle-host-btn')?.addEventListener('click', () => getEl('host-panel').classList.toggle('hidden'));
     getEl('generate-link-btn')?.addEventListener('click', generateCustomGame);
     getEl('view-scores-btn')?.addEventListener('click', viewCustomScores);
+    
     getEl('lifeline-phone')?.addEventListener('click', usePhoneLifeline);
     getEl('lifeline-poll')?.addEventListener('click', usePollLifeline);
     getEl('lifeline-5050')?.addEventListener('click', useFiftyFifty);
+    
     getEl('close-phone-modal-btn')?.addEventListener('click', () => {
         getEl('phone-modal').style.display = 'none';
         clearInterval(dialInterval);
