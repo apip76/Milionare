@@ -18,18 +18,240 @@ try {
 } catch (e) { console.error("Firebase Init Error:", e); }
 
 // *********************************************************
-// ***** DATABASE IKLAN (SATU PANEL KANAN) *****
+// ***** DATABASE IKLAN MULTI-KATEGORI *****
 // *********************************************************
-const adsList = [
-    { title: "Shopee Sale", sub: "Diskon 50%", link: "https://collshp.com/apiparo339?share_channel_code=1&view=storefront", icon: "🛍️", color: "linear-gradient(to bottom, #ff7337, #ee4d2d)" },
-    { title: "Tokopedia", sub: "Belanja Sekarang", link: "https://tk.tokopedia.com/ZSfNbeWsu/", icon: "💚", color: "linear-gradient(to bottom, #42b549, #35953d)" },
-    { title: "Flash Sale", sub: "Serba Seribu", link: "https://shopee.co.id/flash_sale", icon: "⚡", color: "linear-gradient(to bottom, #eace00, #ffd600)" },
-    { title: "WIB Promo", sub: "Waktu Indo Belanja", link: "https://www.tokopedia.com/discovery/wib", icon: "📅", color: "linear-gradient(to bottom, #00aa5b, #007a41)" },
-    { title: "Gratis Ongkir", sub: "Klaim Voucher", link: "https://collshp.com/apiparo339?share_channel_code=1&view=storefront", icon: "🚚", color: "linear-gradient(to bottom, #00bfa5, #00897b)" },
-    { title: "Elektronik", sub: "Diskon Gadget", link: "https://www.tokopedia.com/p/handphone-tablet", icon: "📱", color: "linear-gradient(to bottom, #2196f3, #1565c0)" }
-];
+const adCategories = {
+    "SHOPEE AFFILIATES MILIONAIRE": [
+        {
+            "title": "Gabung Shopee Affiliates Tim-ku",
+            "sub": "Dapatkan Puluhan Juta",
+            "link": "https://s.shopee.co.id/9UtpFjuuyh",
+            "icon": "🛍️",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        }
+    ],
+    "Mainan Anak": [
+        {
+            "title": "Mainan Handphone Bayi Ponsel Mainan dengan Musik dan Lampu",
+            "sub": "Bahasa Inggris dan Indonesia Mainan Edukasi Anak",
+            "link": "https://s.shopee.co.id/3qFSb6lw2C",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "Multifungsi Mikrofon Anak Bluetooth Wireless Speaker",
+            "sub": "Mainan Mikrofon Kartun Nyanyi Anak Perempuan",
+            "link": "https://s.shopee.co.id/9KaP9IkMBn",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #d81b60, #880e4f)"
+        },
+        {
+            "title": "ISABELLA Bayi Mainan Ponsel Ponsel Teether Musik Suara Mainan Pendidikan Awal Belajar Mesin Hadiah Anak-anak",
+            "sub": "Mainan Edukasi Ponsel pendidikan anak usia dini Dengan Lampu",
+            "link": "https://s.shopee.co.id/9AGyx4weUL",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "Geetoy Buku Pencerahan Pertama Bayi DIY Buku",
+            "sub": "Sibuk Velcro Mainan Pendidikan Dini Untuk Anak-anak",
+            "link": "https://s.shopee.co.id/7KpKlwBFBp",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #d81b60, #880e4f)"
+        },
+        {
+            "title": "PLANETKIDZ FK158 Mainan Anak Senter Proyektor",
+            "sub": "Fun Flashlight Mainan Proyektor Gambar Mainan Edukasi",
+            "link": "https://s.shopee.co.id/8fKiMdHIN9",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "PLANETKIDZ FK221 PAPAN LCD TULIS",
+            "sub": "TABLET ANAK 85 LCD TABLET MULTIFUNGSI TAB Tulis Anak",
+            "link": "https://s.shopee.co.id/9KaPAIUO1v",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "Terbaru Mainan Anak",
+            "sub": "Bicycle Dancing / Sepeda Menari",
+            "link": "https://s.shopee.co.id/qbr2iHGGm",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "hp bayi edukasi Mainan Telepon Anak hp mainan anak anak 45 Tombol Modus Piano Interaktif",
+            "sub": "Lampu Menarik & Suara Hewan Baterai 300mAh Tahan Lama Hadiah Edukatif untuk Anak 1-6",
+            "link": "https://s.shopee.co.id/7KpKmllUmh",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "Mainan Edukasi Anak",
+            "sub": "Donat Susun 10 Jumbo Plus Bebek",
+            "link": "https://s.shopee.co.id/9UtpMo7B1n",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "TAIYO Basic Kayu Edukasi Sensory Montessori Mini Round Beads Jam",
+            "sub": "Puzzle 3D Shape Geometri Xylophone Mainan Anak",
+            "link": "https://s.shopee.co.id/6VGDnMTli6",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "MINISTAR Mainan Kepiting Lari Sensor Musik & Lampu Lucu",
+            "sub": "Mainan Edukasi Anak Bayi Interaktif Rechargeable Terbaru 2025",
+            "link": "https://s.shopee.co.id/LfaS6lVq5",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "MWN Mainan Anak Edukasi",
+            "sub": "SEMPOA Karakter Bentuk Abacus BE",
+            "link": "https://s.shopee.co.id/2LQepqXCD5",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "Smart Book",
+            "sub": "Bersuara Indonesia Inggris Mainan Anak Buku Edukasi Belajar 13 Materi 20 Lagu",
+            "link": "https://s.shopee.co.id/3LJC1kxG5Z",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "BabyToys Mainan Laptop Anak Edukasi",
+            "sub": "Layar Belajar Notebook Bayi Learning Machine Musik Kado Anak",
+            "link": "https://s.shopee.co.id/5L4GPUesyb",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "Toyz90 Mainan Edukasic Anak",
+            "sub": "Sempoa / Alat hitung karakter beruang lucu & imut",
+            "link": "https://s.shopee.co.id/9fDFZWrqX1",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "PGX - DIY Craft Kit Gelang Manik Manik Aesthetic",
+            "sub": "Manik Manik Pasir 1 Box Lengkap - Mainan Edukasi Anak Perempuan - SM017",
+            "link": "https://s.shopee.co.id/9UtpNHluoO",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "Basic Kayu Edukasi Sensory Montessori Mini Round Beads Jam",
+            "sub": "Puzzle 3D Shape Geometri Xylophone Mainan Anak",
+            "link": "https://s.shopee.co.id/9KaPB22rss",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "100 Pcs Pipe Cleaner Kawat Bulu 30cm",
+            "sub": "Bahan Kraf DIY Manua/ Anak & Dewasa / Bendung Mudah",
+            "link": "https://s.shopee.co.id/60JxCyW5h9",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "paket 6 lembar poster dinding abjad,Hijaiyah animal, transportasi,buah,angka",
+            "sub": "edukasi anak paud TK dan SD",
+            "link": "https://s.shopee.co.id/6pt4Cb8tbb",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "MAINAN EDUKASI",
+            "sub": "MONTESSORI ANAK MERONCE DAN MEMANCING BUAH HEWAN KENDARAAN",
+            "link": "https://s.shopee.co.id/1LY7eZ0rkQ",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "Mainan Anak Mewarnai",
+            "sub": "Melukis Patung Isi 24 Pcs",
+            "link": "https://s.shopee.co.id/AKSwNCDKBG",
+            "icon": "🎮",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        }
+    ],
+    "Rumah Tangga": [
+        {
+            "title": "Homedoki Tangga Rumah Lipat",
+            "sub": "Tangga Besi Lipat 3/4 Step Household Steel Ladder/ Tangga Lipat Aluminium 4 Step Premium Ladder",
+            "link": "https://s.shopee.co.id/9fDFa5Uq8W",
+            "icon": "🏘️",
+            "color": "linear-gradient(to bottom, #555, #333)"
+        },
+        {
+            "title": "[GARANSI PECAH]",
+            "sub": "Tempat Penyimpanan Beras Anti Kutu dan Serangga E03/E04 Rice Bucket",
+            "link": "https://s.shopee.co.id/8V1IC7up8V",
+            "icon": "🏘️",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "Tangga 3/4/5/6/7/8 Step Rumah Lipat",
+            "sub": "Tangga Besi Lipat Household Steel Ladder/ Tangga Lipat Aluminium 8 Step Premium Ladder",
+            "link": "https://s.shopee.co.id/1LY7f2BHt6",
+            "icon": "🏘️",
+            "color": "linear-gradient(to bottom, #eace00, #ffd600)"
+        },
+        {
+            "title": "Alat Pel Lantai Besar",
+            "sub": "Super Mop Otomatis Spin Mop Magic dan Ember Pembersih Lantai Terbaru Perlengkapan Rumah Tangga",
+            "link": "https://s.shopee.co.id/7V8l0R48ee",
+            "icon": "🏘️",
+            "color": "linear-gradient(to bottom, #d81b60, #880e4f)"
+        },
+        {
+            "title": "Kotak Penyimpanan Bumbu Rumah Tangga Penyimpanan Bumbu Toples Bumbu Adas Bintang",
+            "sub": "Kayu Manis Lada Adas Manis Kering Kotak Bumbu Dapur Cabai",
+            "link": "https://s.shopee.co.id/AKSwNiZWlG",
+            "icon": "🏘️",
+            "color": "linear-gradient(to bottom, #d81b60, #880e4f)"
+        }
+    ],
+    "Alat Sekolah": [
+        {
+            "title": "Kotak Pensil Transparan Tahan Air",
+            "sub": "Berkapasitas Besar untuk Penyimpanan Alat Tulis Tangan",
+            "link": "https://s.shopee.co.id/1gAy3xc5id",
+            "icon": "🚃",
+            "color": "linear-gradient(to bottom, #d81b60, #880e4f)"
+        },
+        {
+            "title": "KOTAK PENSIL SQUISHY / TEMPAT ALAT TULIS BONEKA SQUISHY / SQUISHY",
+            "sub": "TEMPAT PERALATAN SEKOLAH / TEMPAT PENSIL SQUISHY | SQUISHI PENCIL CASE | KOTAK WADAH",
+            "link": "https://s.shopee.co.id/1BEhTGXn0c",
+            "icon": "🚃",
+            "color": "linear-gradient(to bottom, #d81b60, #880e4f)"
+        },
+        {
+            "title": "Pensil Box Mekanik Multifungsi Lengkap Kotak Pensil Tempat Pensil Karakter",
+            "sub": "Waterproof Kotak Pensil Anak Tulis Lucu Sekolah Hampers",
+            "link": "https://s.shopee.co.id/7KpKofdydA",
+            "icon": "🚃",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        },
+        {
+            "title": "Tempat Alat Tulis Siswa Aesthetic - Tas Pensil Besar Material + Resleting Premium",
+            "sub": "Desain warna solid/New Ultra Large Capacity Pencil Case Simple Stationery Box Minimalist Pen",
+            "link": "https://s.shopee.co.id/5q0X1zpi8A",
+            "icon": "🚃",
+            "color": "linear-gradient(to bottom, #ff7337, #ee4d2d)"
+        }
+    ]
+};
 
-let adIndex = 0;
+// Variabel Rotasi
+let currentCategoryName = ""; // Kategori yang sedang aktif
+let currentAdsList = [];      // Daftar iklan di kategori tsb
+let currentAdIndex = 0;
 
 // --- LOGIKA GAME ---
 const prizeLadderValues_Full = [50000, 125000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
@@ -48,30 +270,45 @@ const getEl = (id) => document.getElementById(id);
 window.addEventListener('DOMContentLoaded', () => {
     checkURLHash();
     setupEventListeners();
-    startAdRotation(); 
+    initAdSystem(); // Inisialisasi Sistem Iklan Baru
 });
 
-// --- FUNGSI ROTASI IKLAN SATU PANEL ---
-function startAdRotation() {
-    updateAd();
-    setInterval(() => {
-        adIndex = (adIndex + 1) % adsList.length;
-        animateAdUpdate();
-    }, 10000); 
+// --- SISTEM IKLAN CERDAS ---
+function initAdSystem() {
+    // 1. Pilih Kategori Secara Acak saat Game Dimulai/Refresh
+    const categories = Object.keys(adCategories);
+    if(categories.length > 0) {
+        // Pilih satu kategori acak
+        currentCategoryName = categories[Math.floor(Math.random() * categories.length)];
+        currentAdsList = adCategories[currentCategoryName];
+        
+        console.log("Kategori Iklan Terpilih:", currentCategoryName);
+        
+        // Mulai Rotasi
+        updateAdDisplay();
+        setInterval(rotateAd, 10000); // Ganti tiap 10 detik
+    }
 }
 
-function animateAdUpdate() {
+function rotateAd() {
+    // Pindah ke iklan berikutnya dalam kategori yang sama
+    currentAdIndex = (currentAdIndex + 1) % currentAdsList.length;
+    
+    // Animasi Fade
     const btn = getEl('dynamic-ad-link');
-    if(!btn) return;
-    btn.classList.add('fade-out');
-    setTimeout(() => {
-        updateAd();
-        btn.classList.remove('fade-out');
-    }, 500);
+    if(btn) {
+        btn.classList.add('fade-out');
+        setTimeout(() => {
+            updateAdDisplay();
+            btn.classList.remove('fade-out');
+        }, 500);
+    }
 }
 
-function updateAd() {
-    const ad = adsList[adIndex];
+function updateAdDisplay() {
+    if(currentAdsList.length === 0) return;
+    
+    const ad = currentAdsList[currentAdIndex];
     const btn = getEl('dynamic-ad-link');
     const title = getEl('dynamic-ad-title');
     const sub = getEl('dynamic-ad-sub');
@@ -81,7 +318,8 @@ function updateAd() {
         btn.href = ad.link;
         btn.style.background = ad.color; 
         title.textContent = ad.title;
-        sub.textContent = ad.sub;
+        // Tampilkan kategori di sub-judul agar user tahu
+        sub.textContent = ad.sub; 
         icon.textContent = ad.icon;
     }
 }
@@ -255,7 +493,6 @@ function loseGame() {
     let finalMoney = 0;
     if(currentQuestionIndex >= 10) finalMoney = currentLadderValues[9];
     else if(currentQuestionIndex >= 5) finalMoney = currentLadderValues[4];
-    
     let finalPoints = 0;
     if (currentQuestionIndex > 0) {
         finalPoints = pointSystem[currentQuestionIndex - 1];
@@ -267,27 +504,17 @@ function loseGame() {
 
 function resetGame() { window.location.reload(); }
 
-// --- Timer dengan Perubahan Warna ---
 function startTimer(val = 60) {
     clearInterval(timerInterval);
     let t = (val && val > 0) ? val : 60;
     const timerEl = getEl('timer');
     timerEl.textContent = t;
-    
-    // Reset kelas warna
     timerEl.className = ''; 
-    
     timerInterval = setInterval(() => {
         t--;
         timerEl.textContent = t;
-        
-        // Logika Warna
-        if(t <= 5) {
-            timerEl.className = 'danger'; // Merah Kedip
-        } else if(t <= 10) {
-            timerEl.className = 'warning'; // Kuning
-        }
-        
+        if(t <= 5) timerEl.className = 'danger'; 
+        else if(t <= 10) timerEl.className = 'warning'; 
         if(t <= 0) {
             clearInterval(timerInterval);
             loseGame();
@@ -296,7 +523,6 @@ function startTimer(val = 60) {
 }
 function stopTimer() { clearInterval(timerInterval); }
 
-// --- LIFELINES & Utils ---
 function usePollLifeline() {
     const btn = getEl('lifeline-poll');
     if(btn.classList.contains('used')) return;
@@ -501,5 +727,3 @@ async function saveScore(name, moneyValue, pointsValue) {
         console.error("Gagal menyimpan skor: ", error);
     }
 }
-
-
